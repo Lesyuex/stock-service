@@ -1,0 +1,12 @@
+${AnsiColor.BRIGHT_WHITE}      ___           ___                                  ___                       ___           ___
+${AnsiColor.BRIGHT_WHITE}     /\__\         /\__\                                /\  \                     /\__\         /\  \
+${AnsiColor.BRIGHT_WHITE}    /:/ _/_       /:/ _/_         ___                  /::\  \       ___         /:/  /         \:\  \
+${AnsiColor.BRIGHT_WHITE}   /:/ /\  \     /:/ /\__\       /\__\                /:/\:\__\     /\__\       /:/  /           \:\  \
+${AnsiColor.BRIGHT_WHITE}  /:/ /::\  \   /:/ /:/ _/_     /:/  /               /:/ /:/  /    /:/__/      /:/  /  ___   ___ /::\  \
+${AnsiColor.BRIGHT_WHITE} /:/__\/\:\__\ /:/_/:/ /\__\   /:/__/               /:/_/:/__/___ /::\  \     /:/__/  /\__\ /\  /:/\:\__\
+${AnsiColor.BRIGHT_WHITE} \:\  \ /:/  / \:\/:/ /:/  /  /::\  \               \:\/:::::/  / \/\:\  \__  \:\  \ /:/  / \:\/:/  \/__/   ${AnsiColor.BRIGHT_RED}name: ${spring.application.name}
+${AnsiColor.BRIGHT_WHITE}  \:\  /:/  /   \::/_/:/  /  /:/\:\  \               \::/~~/~~~~   ~~\:\/\__\  \:\  /:/  /   \::/__/        ${AnsiColor.BRIGHT_RED}version: ${spring.application.version}
+${AnsiColor.BRIGHT_WHITE}   \:\/:/  /     \:\/:/  /   \/__\:\  \               \:\~~\          \::/  /   \:\/:/  /     \:\  \        ${AnsiColor.BRIGHT_RED}port: ${server.port}
+${AnsiColor.BRIGHT_WHITE}    \::/  /       \::/  /         \:\__\               \:\__\         /:/  /     \::/  /       \:\__\       ${AnsiColor.BRIGHT_RED}pid: ${pid}
+${AnsiColor.BRIGHT_WHITE}     \/__/         \/__/           \/__/                \/__/         \/__/       \/__/         \/__/
+${AnsiColor.BRIGHT_RED}                                                                                                            spring-boot-verion: ${spring-boot.version}
