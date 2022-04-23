@@ -47,14 +47,14 @@ public class MysqlGenerator {
         PackageConfig packageConfig = new PackageConfig();
         packageConfig.setParent("com.jobeth");
         packageConfig.setEntity("entity");
-        packageConfig.setMapper("mapper");
+/*        packageConfig.setMapper("mapper");
         packageConfig.setService("service");
         packageConfig.setServiceImpl("service.impl");
-        packageConfig.setController("controller");
+        packageConfig.setController("controller");*/
         autoGenerator.setPackageInfo(packageConfig);
         //策略配置
         StrategyConfig strategyConfig = new StrategyConfig();
-        strategyConfig.setInclude("plate_stocks_info");
+        strategyConfig.setInclude("stock_info");
         strategyConfig.setNaming(NamingStrategy.underline_to_camel);
         strategyConfig.setColumnNaming(NamingStrategy.underline_to_camel);
         strategyConfig.setEntityLombokModel(true);

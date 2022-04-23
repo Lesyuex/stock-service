@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jobeth.mapper.StockInfoMapper">
-
     <update id="updateSzBStock" parameterType="com.jobeth.entity.StockInfo">
-        update stock_info s1, (SELECT COMPANY_ABBR from stock_info where A_STOCK_CODE = #{aStockCode} AND B_STOCK_CODE = #{bStockCode}) s2
+        update stock_info s1, (
+            SELECT COMPANY_ABBR from stock_info where
+            A_STOCK_CODE = #{aStockCode}
+            AND
+            B_STOCK_CODE = #{bStockCode}
+            ) s2
         set s1.A_STOCK_CODE = #{aStockCode},
             s1.COMPANY_ABBR = s2.COMPANY_ABBR
         where s1.B_STOCK_CODE = #{bStockCode} and s1.A_STOCK_CODE = '-';
-
     </update>
 </mapper>

@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
  * </p>
  *
  * @author jobeth
- * @since 2022-04-18
+ * @since 2022-04-23
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -26,7 +26,13 @@ public class StockInfo implements Serializable {
     /**
      * 股票代码
      */
-    @TableId(value = "A_STOCK_CODE",type = IdType.INPUT)
+    @TableId(value = "CODE", type = IdType.INPUT)
+    private String code;
+
+    /**
+     * 股票代码
+     */
+    @TableField("A_STOCK_CODE")
     private String aStockCode;
 
     /**
@@ -76,6 +82,13 @@ public class StockInfo implements Serializable {
      */
     @TableField("LIST_BOARD")
     private String listBoard;
+
+    /**
+     * A： A股
+     * B：B股
+     */
+    @TableField("AB_FLAG")
+    private String abFlag;
 
     /**
      * 退市时间
