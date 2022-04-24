@@ -15,18 +15,12 @@ import org.springframework.stereotype.Component;
  * @date 2022/4/17 12:45:45
  * Description: -
  */
-@Component
-public class SpringContextUtil implements ApplicationContextAware {
+public class SpringContextUtil  {
 
     /**
      * Spring上下文
      */
-    private static ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        SpringContextUtil.applicationContext = applicationContext;
-    }
+    public static ApplicationContext applicationContext;
 
     @SuppressWarnings("unchecked")
     public static <B> B getBean(String beanName) {
