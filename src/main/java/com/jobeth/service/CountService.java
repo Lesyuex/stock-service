@@ -11,5 +11,5 @@ import java.util.Map;
  */
 public interface CountService {
 
-    Map<String,Integer> countUpAndDown();
+    Map<String,Integer> countUpAndDown() throws Exception;
 }

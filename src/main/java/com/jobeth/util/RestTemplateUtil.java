@@ -1,6 +1,5 @@
 package com.jobeth.util;
 
-import com.jobeth.enums.RequestUrlEnums;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,8 +23,9 @@ public class RestTemplateUtil {
 
     public static <T> T request(String url,Class<T> clazz){
         ResponseEntity<T> forEntity = REST_TEMPLATE.getForEntity(url, clazz);
-        return (T)forEntity.getBody();
+        return forEntity.getBody();
     }
+
 
     public static <T> T getWithHeader(String url,Map<String,String> header,Class<T> clazz){
         HttpHeaders headers = new HttpHeaders();

@@ -82,9 +82,9 @@ public class ShareController {
             JSONArray o = (JSONArray) minutesData.get(i);
             // 格式化date 0930 => 09:30
             String dateStr = o.get(0).toString();
-            StringBuffer stringBuffer = new StringBuffer(dateStr);
-            stringBuffer.insert(2,":");
-            o.set(0,stringBuffer.toString());
+            StringBuilder stringBuilder = new StringBuilder(dateStr);
+            stringBuilder.insert(2,":");
+            o.set(0,stringBuilder.toString());
             BigDecimal minutesPrice = new BigDecimal(o.get(1).toString());
             BigDecimal diffPrice = minutesPrice.subtract(yestPrice);
             Double v = diffPrice.divide(yestPrice, MathContext.DECIMAL128).multiply(bigDecimal100).setScale(2,BigDecimal.ROUND_HALF_DOWN).doubleValue();

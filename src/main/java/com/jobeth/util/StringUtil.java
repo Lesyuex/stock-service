@@ -43,7 +43,7 @@ public class StringUtil {
     }
 
     /**
-     * 将 000001，603138 => sz000001,sh603138
+     * 将 000001，603138 => sz000001,sh603138 或者 s_sz000001,s_sh603138
      *
      * @param codes 000001，603138 类型
      * @return sz000001, sh603138 类型
@@ -51,24 +51,33 @@ public class StringUtil {
     public static String formatStockCode(String codes) {
         codes = codes.replaceAll(" +","");
         String[] codeArr = codes.split(",");
-        StringBuilder formatCodes = new StringBuilder();
-        for (String code : codeArr) {
-            String prefix = getStockPrefix(code);
-            formatCodes.append(prefix);
-            formatCodes.append(code);
-            formatCodes.append(",");
-        }
-        int index = formatCodes.lastIndexOf(",");
-        return  formatCodes.deleteCharAt(index).toString();
+        return formatStockCodeWithArr(false,codeArr);
 
     }
 
+    public static String formatStockCodeWithArr(Boolean single,String[] ...codeArr){
+        StringBuilder formatCodes = new StringBuilder();
+        for (String[] arr : codeArr) {
+            for (String code : arr) {
+                String prefix = getStockPrefix(code);
+                if (single){
+                    formatCodes.append("s_");
+                }
+                formatCodes.append(prefix);
+                formatCodes.append(code);
+                formatCodes.append(",");
+            }
+        }
+        int index = formatCodes.lastIndexOf(",");
+        return  formatCodes.deleteCharAt(index).toString();
+    }
+
     public static String getStockPrefix(String code) {
-        if (code.startsWith("600") || code.startsWith("601") || code.startsWith("603") || code.startsWith("605") || code.startsWith("900")) {
-            // 以600、601、603、605、900开头，查询股票详情时候拼接前缀“sh”
+        if (code.startsWith("6") || code.startsWith("9")) {
+            // 以6、9开头，查询股票详情时候拼接前缀“sh”
             return StockTypeEnums.CHINA_STOCK_SH.getPrefix();
-        } else if (code.startsWith("000") || code.startsWith("002") || code.startsWith("003") || code.startsWith("200") || code.startsWith("300")) {
-            //A股-深证 6位纯数字，以000、002、003、200、300开头，查询股票详情时候拼接前缀“sz”
+        } else if (code.startsWith("0") || code.startsWith("2") || code.startsWith("3")) {
+            //A股-深证 6位纯数字，以0、2、3开头，查询股票详情时候拼接前缀“sz”
             return StockTypeEnums.CHINA_STOCK_SZ.getPrefix();
         } else {
             return "";

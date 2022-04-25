@@ -185,7 +185,7 @@ public class StockInfoServiceImpl implements StockInfoService {
                         this.addData(pageData, dataList);
                     }
                     log.info("深交所Tab{}共{}页，获取第{}页数据完成", tabKey, pageCount, pageNo);
-                    Thread.sleep(888);
+                    Thread.sleep(555);
                 }
             }
         }

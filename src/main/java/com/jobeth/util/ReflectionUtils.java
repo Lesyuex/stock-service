@@ -22,7 +22,7 @@ public class ReflectionUtils {
 
     public static <T> T createDataByStrArr(String[] arr,Class<T> clazz) throws Exception {
         Constructor<T> constructor = clazz.getDeclaredConstructor();
-        T t = constructor.newInstance();
+        T instance = constructor.newInstance();
         Field[] filedArr = clazz.getDeclaredFields();
         for (Field filed : filedArr) {
             QtIndex annotation = filed.getAnnotation(QtIndex.class);
@@ -31,9 +31,9 @@ public class ReflectionUtils {
                 value = annotation.value();
                 int i = Integer.parseInt(value);
                 filed.setAccessible(true);
-                filed.set(t,arr[i]);
+                filed.set(instance,arr[i]);
             }
         }
-        return t;
+        return instance;
     }
 }
