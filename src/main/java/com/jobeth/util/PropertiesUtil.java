@@ -12,26 +12,28 @@ import java.util.Properties;
  * Description: -
  */
 public class PropertiesUtil {
-   public static Properties properties;
-   static {
-       properties = new Properties();
-       ClassLoader classLoader = PropertiesUtil.class.getClassLoader();
-       InputStream inputStream = classLoader.getResourceAsStream("url.properties");
-       try {
-           properties.load(inputStream);
-       } catch (IOException e) {
-           e.printStackTrace();
-       }
-   }
+    public static Properties properties;
+
+    static {
+        properties = new Properties();
+        ClassLoader classLoader = PropertiesUtil.class.getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream("url.properties");
+        try {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     public static void main(String[] args) {
         PropertiesUtil.getByKey("eastMoneyBk");
     }
-   public static String getByKey(String key){
-       if (properties == null ||  properties.getProperty(key) == null) {
-           return "";
-       }
-       return properties.getProperty(key);
-   }
+
+    public static String getByKey(String key) {
+        if (properties == null || properties.getProperty(key) == null) {
+            return "";
+        }
+        return properties.getProperty(key);
+    }
 }

@@ -24,9 +24,9 @@ public class ReflectionUtils {
         Constructor<T> constructor = clazz.getDeclaredConstructor();
         T instance = constructor.newInstance();
         Field[] filedArr = clazz.getDeclaredFields();
+        String value = null;
         for (Field filed : filedArr) {
             QtIndex annotation = filed.getAnnotation(QtIndex.class);
-            String value = null;
             if (annotation != null) {
                 value = annotation.value();
                 int i = Integer.parseInt(value);
