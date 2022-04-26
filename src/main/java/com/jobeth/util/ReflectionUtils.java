@@ -31,7 +31,10 @@ public class ReflectionUtils {
                 value = annotation.value();
                 int i = Integer.parseInt(value);
                 filed.setAccessible(true);
-                filed.set(instance,arr[i]);
+                Class<?> datatType = filed.getType();
+                Constructor<?> dtConstru = datatType.getConstructor(String.class);
+                Object o = dtConstru.newInstance(arr[i]);
+                filed.set(instance,o);
             }
         }
         return instance;

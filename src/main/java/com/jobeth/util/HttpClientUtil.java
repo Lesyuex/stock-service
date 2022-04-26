@@ -30,6 +30,12 @@ import java.util.Map;
  * Description: -
  */
 public class HttpClientUtil {
+
+    public static void main(String[] args) {
+        String url = "https://push2.eastmoney.com/api/qt/kamtbs.rtmin/get?fields1=f1,f2,f3,f4&fields2=f51,f54,f52,f58,f53,f62,f56,f57,f60,f61";
+        String s = HttpClientUtil.sendGet(url, null);
+        System.out.println(s);
+    }
     /**
      * 调用POST请求
      *
