@@ -30,4 +30,5 @@ public interface StockInfoService {
      * @return List<StockInfo>
      */
     List<StockInfoVo> listAll();
+
 }

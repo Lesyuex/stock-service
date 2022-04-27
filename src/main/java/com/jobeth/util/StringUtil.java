@@ -17,12 +17,27 @@ public class StringUtil {
     public static void main(String[] args) {
         System.out.println(underlineToCase("A_STOCK_CODE"));
     }
+
+    /**
+     * 判断字符串是否可以转为数字
+     * @param str str
+     * @return boolean
+     */
+    public static boolean checkStrIsNumber(String str) {
+        if (str == null) return false;
+        //使用正则 ?:0或一个 *：0个或多个 +：1或多个
+        String patter = "-?[0-9]+.?[0-9]*";
+        return str.matches(patter);
+    }
+
+
     /**
      * A_STOCK_CODE => aStockCode
-     * @param underline
-     * @return
+     *
+     * @param underline underline
+     * @return String
      */
-    public static String underlineToCase(String underline){
+    public static String underlineToCase(String underline) {
         underline = underline.toLowerCase(Locale.ROOT);
         String[] arr = underline.split("_");
         StringBuilder builder = new StringBuilder();
@@ -35,10 +50,12 @@ public class StringUtil {
         chars[0] = charToLowCase(chars[0]);
         return String.valueOf(chars);
     }
-    public static char charToUpperCase(char c){
+
+    public static char charToUpperCase(char c) {
         return c ^= 32;
     }
-    public static char charToLowCase(char c){
+
+    public static char charToLowCase(char c) {
         return c ^= 32;
     }
 
@@ -49,18 +66,18 @@ public class StringUtil {
      * @return sz000001, sh603138 类型
      */
     public static String formatStockCode(String codes) {
-        codes = codes.replaceAll(" +","");
+        codes = codes.replaceAll(" +", "");
         String[] codeArr = codes.split(",");
-        return formatStockCodeWithArr(false,codeArr);
+        return formatStockCodeWithArr(false, codeArr);
 
     }
 
-    public static String formatStockCodeWithArr(Boolean single,String[] ...codeArr){
+    public static String formatStockCodeWithArr(Boolean single, String[]... codeArr) {
         StringBuilder formatCodes = new StringBuilder();
         for (String[] arr : codeArr) {
             for (String code : arr) {
                 String prefix = getStockPrefix(code);
-                if (single){
+                if (single) {
                     formatCodes.append("s_");
                 }
                 formatCodes.append(prefix);
@@ -69,7 +86,7 @@ public class StringUtil {
             }
         }
         int index = formatCodes.lastIndexOf(",");
-        return  formatCodes.deleteCharAt(index).toString();
+        return formatCodes.deleteCharAt(index).toString();
     }
 
     public static String getStockPrefix(String code) {
@@ -89,10 +106,10 @@ public class StringUtil {
      * 将 000001，399006 => sh000001,sz399006
      *
      * @param codes 000001，399006 类型
-     * @return sh000001,sz399006 类型
+     * @return sh000001, sz399006 类型
      */
     public static String formatIndexCode(String codes) {
-        codes = codes.replaceAll(" +","");
+        codes = codes.replaceAll(" +", "");
         String[] codeArr = codes.split(",");
         StringBuilder formatCodes = new StringBuilder();
         for (String code : codeArr) {
@@ -102,7 +119,7 @@ public class StringUtil {
             formatCodes.append(",");
         }
         int index = formatCodes.lastIndexOf(",");
-        return  formatCodes.deleteCharAt(index).toString();
+        return formatCodes.deleteCharAt(index).toString();
     }
 
     public static String getIndexPrefix(String code) {
