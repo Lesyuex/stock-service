@@ -4,6 +4,7 @@ import com.jobeth.vo.StockDetailVo;
 import com.jobeth.vo.StockInfoVo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,6 +16,7 @@ import java.util.List;
 public interface StockInfoService {
     /**
      * 查询股票详细信息 可批量
+     *
      * @param codes code
      * @return List<StockVo>
      */
@@ -27,8 +29,10 @@ public interface StockInfoService {
 
     /**
      * 查询A股所有股票
+     *
      * @return List<StockInfo>
      */
     List<StockInfoVo> listAll();
 
+    Map<String, Object> queryMinutes( String type,String code);
 }

@@ -18,8 +18,18 @@ public class StringUtil {
         System.out.println(underlineToCase("A_STOCK_CODE"));
     }
 
+    public static String getRealCode(String type, String code) {
+        if ("stock".equals(type)) {
+            return formatStockCode(code);
+        } else if ("index".equals(type)) {
+            return formatIndexCode(code);
+        }
+        return null;
+    }
+
     /**
      * 判断字符串是否可以转为数字
+     *
      * @param str str
      * @return boolean
      */

@@ -117,6 +117,15 @@ public class StockInfoServiceImpl implements StockInfoService {
         return stockInfoVoList;
     }
 
+    @Override
+    public Map<String, Object> queryMinutes(String type, String code) {
+        String txMinutes = PropertiesUtil.getByKey("txMinutes");
+        StringUtil.
+
+
+        return null;
+    }
+
     /**
      * 获取所有上交所的股票
      *
