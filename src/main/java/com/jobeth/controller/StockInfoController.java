@@ -23,13 +23,13 @@ import java.util.*;
  * Description: -股票查询接口
  */
 @RestController
-@RequestMapping("/{type}")
+@RequestMapping("/{market}")
 public class StockInfoController {
     @Autowired
     private StockInfoService stockInfoService;
 
     @GetMapping("/query/detail/{codes}")
-    public ResultVo<Object> getDetail(@PathVariable("type") String type, @PathVariable("codes") String codes) throws Exception {
+    public ResultVo<Object> getDetail(@PathVariable("market") String market, @PathVariable("codes") String codes) throws Exception {
         List<StockDetailVo> stockDetailVoList = this.stockInfoService.query(codes);
         if (stockDetailVoList.size() <= 1) {
             return ResultVo.success(stockDetailVoList.get(0));
@@ -50,8 +50,8 @@ public class StockInfoController {
     }
 
     @GetMapping("/quey/minutes/{code}")
-    public ResultVo<Map<String, Object>> getMinuites(@PathVariable("type") String type, @PathVariable("code") String code) {
-        this.stockInfoService.queryMinutes(type,code);
-        return ResultVo.success(null);
+    public ResultVo<Map<String, Object>> getMinuites(@PathVariable("market") String market, @PathVariable("code") String code) throws Exception {
+        Map<String, Object> stringObjectMap = this.stockInfoService.queryMinutes(market, code);
+        return ResultVo.success(stringObjectMap);
     }
 }

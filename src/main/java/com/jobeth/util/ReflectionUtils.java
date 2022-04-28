@@ -39,7 +39,7 @@ public class ReflectionUtils {
                 Class<?> datatType = filed.getType();
                 Constructor<?> dtConstru = datatType.getConstructor(String.class);
                 String str = arr[i];
-                if (datatType.getSuperclass().equals("java.lang.Number")) {
+                if (datatType.getSuperclass().getName().equals("java.lang.Number")) {
                     boolean b = StringUtil.checkStrIsNumber(str);
                     if (b)filed.set(instance, dtConstru.newInstance(str));
                     else filed.set(instance, null);

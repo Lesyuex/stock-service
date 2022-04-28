@@ -7,10 +7,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jobeth.entity.StockInfo;
 import com.jobeth.mapper.StockInfoMapper;
 import com.jobeth.service.StockInfoService;
-import com.jobeth.util.HttpClientUtil;
-import com.jobeth.util.PropertiesUtil;
-import com.jobeth.util.RestTemplateUtil;
-import com.jobeth.util.StringUtil;
+import com.jobeth.util.*;
+import com.jobeth.vo.ClinchDetailVo;
 import com.jobeth.vo.StockDetailVo;
 import com.jobeth.vo.StockInfoVo;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +19,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -37,6 +38,76 @@ public class StockInfoServiceImpl implements StockInfoService {
     private StockInfoMapper stockInfoMapper;
     @Autowired
     private SqlSessionFactory sqlSessionFactory;
+
+    @Override
+    public Map<String, Object> queryMinutes(String market, String code) throws Exception {
+        String txMinutes = PropertiesUtil.getByKey("txMinutes");
+        String realCode = StockUtil.getRealCodes(market, code);
+        String realUrl = String.format("%s%s", txMinutes, realCode);
+        String res = RestTemplateUtil.request(realUrl, String.class);
+        // 解析数据
+        JSONObject jsonObject = JSON.parseObject(res);
+        JSONObject data = jsonObject.getJSONObject("data");
+        JSONObject stock = data.getJSONObject(realCode);
+        String[] newestInfo = stock.getJSONObject("qt").getObject(realCode, String[].class);
+
+        StockDetailVo stockDetailVo = ReflectionUtils.createDataByStrArr(newestInfo, StockDetailVo.class);
+        // 分时图数据 [时间、价格、成交量、成交额] => [时间、价格、总成交量、总成交额]
+        JSONArray minutesData = stock.getJSONObject("data").getJSONArray("data");
+        BigDecimal yestclose = BigDecimal.valueOf(stockDetailVo.getYesterdayPrice());
+        BigDecimal bigDecimal100 = new BigDecimal(100);
+        List<Object[]> newMinutesData = new ArrayList<>(minutesData.size());
+        for (int i = 0; i < minutesData.size(); i++) {
+            Object[] objects = new Object[7];
+            String json = "[" + minutesData.getString(i).replaceAll(" ", ",") + "]";
+            JSONArray o = JSON.parseObject(json, JSONArray.class);
+            // 格式化date 0930 => 09:30
+            String dateStr = o.getString(0);
+            if (dateStr.length() == 3) {
+                dateStr = "0" + dateStr;
+            }
+            StringBuilder stringBuilder = new StringBuilder(dateStr);
+            stringBuilder.insert(2, ":");
+            objects[0] = stringBuilder.toString();
+            BigDecimal minutesPrice = o.getBigDecimal(1);
+            objects[1] = minutesPrice;
+            // 计算均价 （成交额除以成交量）
+            BigDecimal volume = o.getBigDecimal(2);//累计成交量
+            BigDecimal clinch = o.getBigDecimal(3);//累计成交额
+            objects[2] = volume;
+            objects[3] = clinch;
+            int minutesVolume = volume.intValue();
+            // 9.31 -> 14.57
+            if (1 <= i && i <= 238) {
+                String preStr = "[" + minutesData.getString(i - 1).replaceAll(" ", ",") + "]";
+                JSONArray pre = JSON.parseObject(preStr, JSONArray.class);
+                minutesVolume = minutesVolume - pre.getInteger(2);
+            } else if (i == 239 || i == 240) {
+                minutesVolume = 0;
+            } else if (i == 241) {
+                String preStr = "[" + minutesData.getString(238).replaceAll(" ", ",") + "]";
+                JSONArray pre = JSON.parseObject(preStr, JSONArray.class);
+                minutesVolume = minutesVolume - pre.getInteger(2);
+            }
+            objects[4] = minutesVolume;
+            //均价
+            double average = clinch.divide(volume, MathContext.DECIMAL128).divide(bigDecimal100, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
+            objects[5] = average;
+            //最新涨跌幅
+            BigDecimal diffPrice = minutesPrice.subtract(yestclose);
+            double v = diffPrice.divide(yestclose, MathContext.DECIMAL128).multiply(bigDecimal100).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
+            objects[6] = v;
+            newMinutesData.add(objects);
+        }
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("newestInfo", stockDetailVo);
+        map.put("newestMinutes", newMinutesData);
+        map.put("yestclose", yestclose);
+        return map;
+    }
+
+
 
     /**
      * 根据传入的股票代码查询股票当前详细信息（可批量603138，000001）
@@ -115,15 +186,6 @@ public class StockInfoServiceImpl implements StockInfoService {
             stockInfoVoList.add(stockInfoVo);
         }
         return stockInfoVoList;
-    }
-
-    @Override
-    public Map<String, Object> queryMinutes(String type, String code) {
-        String txMinutes = PropertiesUtil.getByKey("txMinutes");
-        StringUtil.
-
-
-        return null;
     }
 
     /**

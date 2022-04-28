@@ -1,5 +1,6 @@
 package com.jobeth.service;
 
+import com.jobeth.vo.ClinchDetailVo;
 import com.jobeth.vo.StockDetailVo;
 import com.jobeth.vo.StockInfoVo;
 
@@ -34,5 +35,7 @@ public interface StockInfoService {
      */
     List<StockInfoVo> listAll();
 
-    Map<String, Object> queryMinutes( String type,String code);
+    Map<String, Object> queryMinutes(String market, String code) throws Exception;
+
+
 }
