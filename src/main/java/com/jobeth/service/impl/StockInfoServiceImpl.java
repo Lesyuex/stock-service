@@ -71,9 +71,9 @@ public class StockInfoServiceImpl implements StockInfoService {
             objects[0] = stringBuilder.toString();
             BigDecimal minutesPrice = o.getBigDecimal(1);
             objects[1] = minutesPrice;
-            // 计算均价 （成交额除以成交量）
-            BigDecimal volume = o.getBigDecimal(2);//累计成交量
-            BigDecimal clinch = o.getBigDecimal(3);//累计成交额
+            // 计算均价 （成交额除以成交量）//累计成交量//累计成交额
+            BigDecimal volume = o.getBigDecimal(2);
+            BigDecimal clinch = o.getBigDecimal(3);
             objects[2] = volume;
             objects[3] = clinch;
             int minutesVolume = volume.intValue();
