@@ -33,45 +33,45 @@ public class StockDetailVo implements Serializable {
     @QtIndex(value = "8",desc = "内盘")
     private Integer innerPlate;
     @QtIndex(value = "9",desc = "买一")
-    private Double buyFirstPrice;
+    private Double buyPrice1;
     @QtIndex(value = "10",desc = "买一量（手）")
-    private Integer buyFirstVolume;
+    private Integer buyVolume1;
     @QtIndex(value = "11",desc = "买二")
-    private Double buySecondPrice;
+    private Double buyPrice2;
     @QtIndex(value = "12",desc = "买二量（手）")
-    private Integer buySecondVolume;
+    private Integer buyVolume2;
     @QtIndex(value = "13",desc = "买三")
-    private Double buyThirdPrice;
+    private Double buyPrice3;
     @QtIndex(value = "14",desc = "买三量（手）")
-    private Integer buyThirdVolume;
+    private Integer buyVolume3;
     @QtIndex(value = "15",desc = "买四")
-    private Double buyForthPrice;
+    private Double buyPrice4;
     @QtIndex(value = "16",desc = "买四量（手）")
-    private Integer buyForthVolume;
+    private Integer buyVolume4;
     @QtIndex(value = "17",desc = "买五")
-    private Double buyFifthPrice;
+    private Double buyPrice5;
     @QtIndex(value = "18",desc = "买五量（手")
-    private Integer buyFifthVolume;
+    private Integer buyVolume5;
     @QtIndex(value = "19",desc = "卖一")
-    private Double sellFirstPrice;
+    private Double sellPrice1;
     @QtIndex(value = "20",desc = "卖一量（手）")
-    private Integer sellFirstVolume;
+    private Integer sellVolume1;
     @QtIndex(value = "21",desc = "卖二")
-    private Double sellSecondPrice;
+    private Double sellPrice2;
     @QtIndex(value = "22",desc = "卖二量（手）")
-    private Integer sellSecondVolume;
+    private Integer sellVolume2;
     @QtIndex(value = "23",desc = "卖三")
-    private Double sellThirdPrice;
+    private Double sellPrice3;
     @QtIndex(value = "24",desc = "卖三量（手）")
-    private Integer sellThirdVolume;
+    private Integer sellVolume3;
     @QtIndex(value = "25",desc = "卖四")
-    private Double sellForthPrice;
+    private Double sellPrice4;
     @QtIndex(value = "26",desc = "卖四量（手）")
-    private Integer sellForthVolume;
+    private Integer sellVolume4;
     @QtIndex(value = "27",desc = "卖五")
-    private Double sellFifthPrice;
+    private Double sellPrice5;
     @QtIndex(value = "28",desc = "卖五量（手）")
-    private Integer sellFifthVolume;
+    private Integer sellVolume5;
     @QtIndex(value = "29",desc = "最近逐笔成交")
     private String recentClinch;
     @QtIndex(value = "30",desc = "时间 2022-04-11 11:11:54")
