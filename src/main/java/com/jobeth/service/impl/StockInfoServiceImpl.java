@@ -177,7 +177,7 @@ public class StockInfoServiceImpl implements StockInfoService {
     @Override
     public List<StockInfoVo> listAll() {
         QueryWrapper<StockInfo> query = new QueryWrapper<StockInfo>();
-        query.select("A_STOCK_CODE", "B_STOCK_CODE", "SEC_NAME_CN", "LIST_BOARD");
+        query.select("CODE", "SEC_NAME_CN", "LIST_BOARD");
         List<StockInfo> list = this.stockInfoMapper.selectList(query);
         List<StockInfoVo> stockInfoVoList = new ArrayList<>(list.size());
         for (StockInfo stockInfo : list) {

@@ -16,13 +16,7 @@ public class StockInfoVo {
     /**
      * 股票代码
      */
-    private String aStockCode;
-
-    /**
-     * B股代码
-     */
-    private String bStockCode;
-
+    private String code;
     /**
      * 股票简称
      */

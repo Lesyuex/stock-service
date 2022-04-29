@@ -25,6 +25,6 @@ public class FundingVo {
 
     @QtIndex(value = "8",desc = "北向资金买入")
     private String fundingBuy;
-    @QtIndex(value = "9",desc = "北向资金买入")
+    @QtIndex(value = "9",desc = "北向资金卖出")
     private String fundingSell;
 }
