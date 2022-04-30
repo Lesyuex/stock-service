@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jobeth.service.ClinchService;
-import com.jobeth.util.PropertiesUtil;
-import com.jobeth.util.ReflectionUtils;
-import com.jobeth.util.RestTemplateUtil;
-import com.jobeth.util.StockUtil;
+import com.jobeth.common.util.PropertiesUtils;
+import com.jobeth.common.util.ReflectionUtils;
+import com.jobeth.common.util.RestTemplateUtils;
+import com.jobeth.common.util.StockUtils;
 import com.jobeth.vo.ClinchDetailVo;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +18,11 @@ import java.util.List;
 public class ClinchServiceImpl implements ClinchService {
 
     @Override
-    public List<ClinchDetailVo> queryMingxi(String market, String code, int size) throws Exception {
-        String txMingxi = PropertiesUtil.getByKey("txMingxi");
-        String realCode = StockUtil.getRealCodes(market, code);
+    public List<ClinchDetailVo> queryMingxi(int type, String code, int size) throws Exception {
+        String txMingxi = PropertiesUtils.getByKey("txMingxi");
+        String realCode = StockUtils.getRealCodes(type, code);
         String url = txMingxi.replace("codePlace", realCode).replace("sizePlace", String.valueOf(size));
-        String res = RestTemplateUtil.request(url, String.class);
+        String res = RestTemplateUtils.request(url, String.class);
         JSONObject resObj = JSON.parseObject(res);
         JSONArray array = resObj.getJSONObject("data").getJSONArray("data");
         List<ClinchDetailVo> list = new ArrayList<>(size);

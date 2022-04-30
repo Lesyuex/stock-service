@@ -1,6 +1,6 @@
 package com.jobeth.mapper;
 
-import com.jobeth.entity.PlateStockInfo;
+import com.jobeth.po.PlateStockInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

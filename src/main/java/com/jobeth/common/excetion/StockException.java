@@ -1,6 +1,6 @@
-package com.jobeth.excetion;
+package com.jobeth.common.excetion;
 
-import com.jobeth.enums.ExceptionEnum;
+import com.jobeth.common.enums.ExceptionEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

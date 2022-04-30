@@ -1,6 +1,6 @@
 package com.jobeth.service;
 
-import com.jobeth.entity.PlateStockInfo;
+import com.jobeth.po.PlateStockInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

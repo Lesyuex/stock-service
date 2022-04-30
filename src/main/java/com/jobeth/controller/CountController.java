@@ -1,5 +1,6 @@
 package com.jobeth.controller;
 
+import com.jobeth.common.util.ResultUtils;
 import com.jobeth.service.impl.CountServiceImpl;
 import com.jobeth.vo.ResultVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class CountController {
     @GetMapping("/get/detail")
     public ResultVo<Map<String,Integer>> count() throws Exception {
         Map<String, Integer> stringIntegerMap = this.countService.countUpAndDown();
-        return ResultVo.success(stringIntegerMap);
+        return ResultUtils.success(stringIntegerMap);
     }
 
 }

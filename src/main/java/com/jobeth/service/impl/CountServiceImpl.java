@@ -2,18 +2,12 @@ package com.jobeth.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.jobeth.entity.StockInfo;
-import com.jobeth.mapper.StockInfoMapper;
+import com.jobeth.common.util.HttpClientUtils;
+import com.jobeth.common.util.PropertiesUtils;
 import com.jobeth.service.CountService;
-import com.jobeth.util.*;
-import com.jobeth.vo.StockDetailVo;
-import com.jobeth.vo.StockSingleVo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,8 +27,8 @@ public class CountServiceImpl implements CountService {
     public Map<String, Integer> countUpAndDown() throws Exception {
         HashMap<String, Integer> map = new HashMap<>();
 
-        String clsCount = PropertiesUtil.getByKey("clsCount");
-        String s = HttpClientUtil.sendGet(clsCount, null);
+        String clsCount = PropertiesUtils.getByKey("clsCount");
+        String s = HttpClientUtils.sendGet(clsCount, null);
         JSONObject resObj = JSON.parseObject(s);
         JSONObject data = resObj.getJSONObject("data").getJSONObject("up_down_dis");
         map.put("percentMax", data.getInteger("up_num"));

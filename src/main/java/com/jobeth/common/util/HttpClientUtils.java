@@ -1,4 +1,4 @@
-package com.jobeth.util;
+package com.jobeth.common.util;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.CredentialsProvider;
@@ -7,19 +7,13 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.*;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,11 +23,11 @@ import java.util.Map;
  * @date 2022/4/17 12:45:45
  * Description: -
  */
-public class HttpClientUtil {
+public class HttpClientUtils {
 
     public static void main(String[] args) {
         String url = "https://push2.eastmoney.com/api/qt/kamtbs.rtmin/get?fields1=f1,f2,f3,f4&fields2=f51,f54,f52,f58,f53,f62,f56,f57,f60,f61";
-        String s = HttpClientUtil.sendGet(url, null);
+        String s = HttpClientUtils.sendGet(url, null);
         System.out.println(s);
     }
     /**

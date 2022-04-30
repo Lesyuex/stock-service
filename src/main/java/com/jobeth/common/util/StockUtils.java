@@ -1,40 +1,44 @@
-package com.jobeth.util;
+package com.jobeth.common.util;
 
-import com.jobeth.enums.ExceptionEnum;
-import com.jobeth.excetion.StockException;
+import com.jobeth.common.enums.ExceptionEnum;
+import com.jobeth.common.excetion.StockException;
 import lombok.Getter;
 
-public class StockUtil {
+public class StockUtils {
     private final static String CN_STOCK_SH = "sh";
     private final static String CN_STOCK_SZ = "sz";
     private final static String HK_STOCK = "hk";
 
     @Getter
     private enum MarketEnum {
-        //中国股票
-        CN_STOCK("cn-stock"),
-        //中国指数
-        CN_INDEX("cn-index");
-        private final String name;
+        //A股股票
+        CN_STOCK(0,"A股股票"),
+        //A股指数
+        CN_INDEX(1,"A股指数"),
+        // A股基金
+        CN_FUND(3,"A股指数");
+        private final int type;
+        private final String desc;
 
-        MarketEnum(String name) {
-            this.name = name;
+        MarketEnum(Integer type,String desc) {
+            this.type = type;
+            this.desc = desc;
         }
     }
 
     /**
-     * 根据market获取真实代码
+     * 根据type获取真实代码
      * 例如(maket:cn-stock,codes:000001,603138) => 最后生成 sz000001,sh603138
      * 例如(maket:cn-index,codes:000001,399006) => 最后生成 sh000001,sz399006
      *
-     * @param market MarketEnum
+     * @param type type
      * @param codes  codes
      * @return realCodes
      */
-    public static String getRealCodes(String market, String codes) {
-        if (MarketEnum.CN_STOCK.getName().equals(market)) {
+    public static String getRealCodes(int type, String codes) {
+        if (MarketEnum.CN_STOCK.getType() == type) {
             return getCnStockCodes(codes, 0);
-        } else if (MarketEnum.CN_INDEX.getName().equals(market)) {
+        } else if (MarketEnum.CN_INDEX.getType() == type) {
             return getCnStockCodes(codes, 1);
         } else {
             throw new StockException(ExceptionEnum.UNKNOW_MARKET);

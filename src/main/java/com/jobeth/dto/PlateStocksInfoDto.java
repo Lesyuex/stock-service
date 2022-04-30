@@ -1,23 +1,19 @@
-package com.jobeth.entity;
+package com.jobeth.dto;
 
-import java.io.Serializable;
-
+import com.jobeth.po.PlateStockInfo;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 /**
- * <p>
- * 板块
- * </p>
+ * Created with IntelliJ IDEA.
  *
- * @author jobeth
- * @since 2022-04-21
+ * @author JyrpoKoo
+ * @date 2022/4/21 20:22:22
+ * Description: -
  */
 @Data
-public class PlateInfo implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
+public class PlateStocksInfoDto {
     /**
      * 代码
      */
@@ -39,4 +35,5 @@ public class PlateInfo implements Serializable {
      * 分类名字
      */
     private String categoryName;
+    private List<PlateStockInfo> list;
 }

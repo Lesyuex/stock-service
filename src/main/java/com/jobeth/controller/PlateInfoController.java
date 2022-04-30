@@ -1,6 +1,7 @@
 package com.jobeth.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.jobeth.entity.PlateInfo;
+import com.jobeth.common.util.ResultUtils;
+import com.jobeth.po.PlateInfo;
 import com.jobeth.service.PlateInfoService;
 import com.jobeth.vo.ResultVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class PlateInfoController {
     @PutMapping("/update/all")
     public ResultVo<Boolean> putPlate() throws Exception {
         this.plateInfoService.putPlate();
-        return ResultVo.success(true);
+        return ResultUtils.success(true);
     }
 
     @GetMapping("/list/category/{categoryType}")
@@ -34,7 +35,7 @@ public class PlateInfoController {
         query.select("code", "name");
         query.eq("category_type", categoryType);
         List<PlateInfo> list = this.plateInfoService.list(query);
-        return ResultVo.success(list);
+        return ResultUtils.success(list);
     }
 }
 

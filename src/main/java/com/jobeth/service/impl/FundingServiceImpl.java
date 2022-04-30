@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jobeth.service.FundingService;
-import com.jobeth.util.PropertiesUtil;
-import com.jobeth.util.ReflectionUtils;
-import com.jobeth.util.RestTemplateUtil;
+import com.jobeth.common.util.PropertiesUtils;
+import com.jobeth.common.util.ReflectionUtils;
+import com.jobeth.common.util.RestTemplateUtils;
 import com.jobeth.vo.FundingVo;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +19,8 @@ import java.util.Map;
 public class FundingServiceImpl implements FundingService {
     @Override
     public Map<String, List<FundingVo>> getMinutes() throws Exception{
-        String eastFunding = PropertiesUtil.getByKey("eastFunding");
-        String response = RestTemplateUtil.request(eastFunding, String.class);
+        String eastFunding = PropertiesUtils.getByKey("eastFunding");
+        String response = RestTemplateUtils.request(eastFunding, String.class);
         JSONObject resObj = JSON.parseObject(response);
         JSONObject data = resObj.getJSONObject("data");
         //北向资金

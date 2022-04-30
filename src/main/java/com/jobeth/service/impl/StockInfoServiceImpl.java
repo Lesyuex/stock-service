@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.jobeth.entity.StockInfo;
+import com.jobeth.common.util.*;
+import com.jobeth.po.StockInfo;
 import com.jobeth.mapper.StockInfoMapper;
 import com.jobeth.service.StockInfoService;
-import com.jobeth.util.*;
-import com.jobeth.vo.ClinchDetailVo;
 import com.jobeth.vo.StockDetailVo;
 import com.jobeth.vo.StockInfoVo;
+import com.jobeth.vo.StockSingleVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -39,12 +39,20 @@ public class StockInfoServiceImpl implements StockInfoService {
     @Autowired
     private SqlSessionFactory sqlSessionFactory;
 
+    /**
+     *
+     * 根据市场代码 + 股票代码 获取分时数据 (指数 和 股票通用)
+     * @param type 根据市场代码
+     * @param code 股票代码
+     * @return 分时数据
+     * @throws Exception Exception
+     */
     @Override
-    public Map<String, Object> queryMinutes(String market, String code) throws Exception {
-        String txMinutes = PropertiesUtil.getByKey("txMinutes");
-        String realCode = StockUtil.getRealCodes(market, code);
+    public Map<String, Object> queryMinutes(int type, String code) throws Exception {
+        String txMinutes = PropertiesUtils.getByKey("txMinutes");
+        String realCode = StockUtils.getRealCodes(type, code);
         String realUrl = String.format("%s%s", txMinutes, realCode);
-        String res = RestTemplateUtil.request(realUrl, String.class);
+        String res = RestTemplateUtils.request(realUrl, String.class);
         // 解析数据
         JSONObject jsonObject = JSON.parseObject(res);
         JSONObject data = jsonObject.getJSONObject("data");
@@ -108,7 +116,41 @@ public class StockInfoServiceImpl implements StockInfoService {
     }
 
 
-
+    /**
+     * 查询指数简单信息（可批量上证指数，深证成指 000001，399001）
+     *
+     * @param codes codes
+     * @return 指数信息
+     * @throws Exception Exception
+     */
+    @Override
+    public List<StockSingleVo> getSingle(int type,String codes) throws Exception {
+        // 腾讯批量查询地址（详细信息）
+        String txBatch = PropertiesUtils.getByKey("txBatchSingle");
+        String formatCode = StockUtils.getRealCodes(type,codes);
+        String[] codeArr = formatCode.split(",");
+        StringBuilder builder = new StringBuilder();
+        for (String s : codeArr) {
+            builder.append("s_");
+            builder.append(s);
+            builder.append(",");
+        }
+        String substring = builder.substring(0, builder.length() - 1);
+        String url = String.format("%s%s", txBatch, substring);
+        String body = RestTemplateUtils.request(url, String.class);
+        String str = body.replaceAll("\\n", "");
+        String[] stockSingleStrArr = str.split(";");
+        List<StockSingleVo> stockVoList = new ArrayList<>(stockSingleStrArr.length);
+        for (String stockStr : stockSingleStrArr) {
+            int begin = stockStr.indexOf("=\"") + 2;
+            int end = stockStr.lastIndexOf("\"");
+            String useStr = stockStr.substring(begin, end);
+            String[] arr = useStr.split("~");
+            StockSingleVo stockSingleVo = ReflectionUtils.createDataByStrArr(arr, StockSingleVo.class);
+            stockVoList.add(stockSingleVo);
+        }
+        return stockVoList;
+    }
     /**
      * 根据传入的股票代码查询股票当前详细信息（可批量603138，000001）
      *
@@ -117,14 +159,14 @@ public class StockInfoServiceImpl implements StockInfoService {
      * @throws Exception Exception
      */
     @Override
-    public List<StockDetailVo> query(String codes) throws Exception {
+    public List<StockDetailVo> getDetail(int type,String codes) throws Exception {
         // 腾讯批量查询地址（详细信息）
-        String txBatch = PropertiesUtil.getByKey("txBatchDetail");
+        String txBatch = PropertiesUtils.getByKey("txBatchDetail");
         // 处理股票带码
-        String formatCode = StringUtil.formatStockCode(codes);
+        String formatCode = StockUtils.getRealCodes(type,codes);
         String url = String.format("%s%s", txBatch, formatCode);
         // 解析数据
-        String body = RestTemplateUtil.request(url, String.class);
+        String body = RestTemplateUtils.request(url, String.class);
         String str = body.replaceAll("\\n", "");
         String[] stockDetailArr = str.split(";");
         List<StockDetailVo> stockDetailVoList = new ArrayList<>(stockDetailArr.length);
@@ -135,6 +177,7 @@ public class StockInfoServiceImpl implements StockInfoService {
         }
         return stockDetailVoList;
     }
+
 
     /**
      * 更新所有股票
@@ -195,11 +238,11 @@ public class StockInfoServiceImpl implements StockInfoService {
      * @throws Exception Exception
      */
     public List<StockInfo> getShStock() throws Exception {
-        String url = PropertiesUtil.getByKey("shStockList");
+        String url = PropertiesUtils.getByKey("shStockList");
         HashMap<String, String> headerMap = new HashMap<>(1);
         // 接口需要Referer请求头信息
         headerMap.put("Referer", "http://www.sse.com.cn/");
-        String json = HttpClientUtil.getWithHeader(url, headerMap);
+        String json = HttpClientUtils.getWithHeader(url, headerMap);
         // 解析数据
         int i = json.indexOf("{");
         int i1 = json.lastIndexOf("}");
@@ -351,11 +394,11 @@ public class StockInfoServiceImpl implements StockInfoService {
      * @throws Exception Exception
      */
     public JSONObject getDataByTabAndPage(int tab, int pageNo) throws Exception {
-        String url = PropertiesUtil.getByKey("szStockList");
+        String url = PropertiesUtils.getByKey("szStockList");
         String tabKey = String.format("%s%s", "tab", tab);
         String page = String.valueOf(pageNo);
         String realUrl = url.replace("tab_key", tabKey).replaceAll("page_no", page);
-        String json = HttpClientUtil.getWithHeader(realUrl, new HashMap<>());
+        String json = HttpClientUtils.getWithHeader(realUrl, new HashMap<>());
         JSONArray tabPageNoData = JSON.parseObject(json, JSONArray.class);
         return tabPageNoData.getJSONObject(tab - 1);
     }

@@ -1,5 +1,6 @@
 package com.jobeth.controller;
 
+import com.jobeth.common.util.ResultUtils;
 import com.jobeth.service.FundingService;
 import com.jobeth.vo.FundingVo;
 import com.jobeth.vo.ResultVo;
@@ -20,6 +21,6 @@ public class FundingCotroller {
     @GetMapping("/get/minutes/detail")
     public ResultVo<Map<String, List<FundingVo>>> getMinutes() throws Exception {
         Map<String, List<FundingVo>> minutes = this.fundingService.getMinutes();
-        return ResultVo.success(minutes);
+        return ResultUtils.success(minutes);
     }
 }

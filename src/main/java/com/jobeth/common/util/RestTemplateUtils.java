@@ -1,4 +1,4 @@
-package com.jobeth.util;
+package com.jobeth.common.util;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,17 +17,17 @@ import java.util.Map;
  * @date 2022/4/17 12:45:45
  * Description: -
  */
-public class RestTemplateUtil {
+public class RestTemplateUtils {
 
-    private static final RestTemplate REST_TEMPLATE = SpringContextUtil.getBean(RestTemplate.class);
+    private static final RestTemplate REST_TEMPLATE = SpringContextUtils.getBean(RestTemplate.class);
 
-    public static <T> T request(String url,Class<T> clazz){
+    public static <T> T request(String url, Class<T> clazz) {
         ResponseEntity<T> forEntity = REST_TEMPLATE.getForEntity(url, clazz);
         return forEntity.getBody();
     }
 
 
-    public static <T> T getWithHeader(String url,Map<String,String> header,Class<T> clazz){
+    public static <T> T getWithHeader(String url, Map<String, String> header, Class<T> clazz) {
         HttpHeaders headers = new HttpHeaders();
         for (Map.Entry<String, String> param : header.entrySet()) {
             headers.set(param.getKey(), param.getValue());

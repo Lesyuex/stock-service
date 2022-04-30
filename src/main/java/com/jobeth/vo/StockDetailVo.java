@@ -118,9 +118,9 @@ public class StockDetailVo implements Serializable {
     private Double averagePrice;
     @QtIndex(value = "52",desc = "动态市盈率")
     private Double dyPriceRate;
-    @QtIndex(value = "52",desc = "静态市盈率")
+    @QtIndex(value = "53",desc = "静态市盈率")
     private Double staPriceRate;
-    @QtIndex(value = "52",desc = "成交额")
+    @QtIndex(value = "57",desc = "成交额")
     private Double turnOver;
     public static StockDetailVo generateStockByStrArr(String[] arr) throws IllegalAccessException {
         StockDetailVo shareVo = new StockDetailVo();

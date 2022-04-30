@@ -1,7 +1,6 @@
-package com.jobeth.util;
+package com.jobeth.common.util;
 
 import com.jobeth.annotion.QtIndex;
-import com.jobeth.vo.StockDetailVo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -15,13 +14,8 @@ import java.lang.reflect.Field;
  */
 public class ReflectionUtils {
 
-    public static void main(String[] args) {
-        Double d = new Double(1);
-        System.out.println(d.getClass().getSuperclass());
-    }
-
     public static Field findField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
-        Object bean = SpringContextUtil.getBean(clazz);
+        Object bean = SpringContextUtils.getBean(clazz);
         return bean.getClass().getDeclaredField(fieldName);
     }
 
@@ -40,8 +34,8 @@ public class ReflectionUtils {
                 Constructor<?> dtConstru = datatType.getConstructor(String.class);
                 String str = arr[i];
                 if (datatType.getSuperclass().getName().equals("java.lang.Number")) {
-                    boolean b = StringUtil.checkStrIsNumber(str);
-                    if (b)filed.set(instance, dtConstru.newInstance(str));
+                    boolean b = StringUtils.checkStrIsNumber(str);
+                    if (b) filed.set(instance, dtConstru.newInstance(str));
                     else filed.set(instance, null);
                 } else {
                     filed.set(instance, str);

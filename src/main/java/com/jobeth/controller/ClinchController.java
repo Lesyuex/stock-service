@@ -1,5 +1,6 @@
 package com.jobeth.controller;
 
+import com.jobeth.common.util.ResultUtils;
 import com.jobeth.service.ClinchService;
 import com.jobeth.vo.ClinchDetailVo;
 import com.jobeth.vo.ResultVo;
@@ -11,15 +12,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+
 @RestController
-@RequestMapping("/{market}")
+@RequestMapping("/clinch")
 public class ClinchController {
     @Autowired
     private ClinchService clinchService;
 
-    @GetMapping("/query/clinch/{code}/{size}")
-    public ResultVo<Object> getClinch(@PathVariable("market") String market, @PathVariable("code") String code, @PathVariable(value = "size") int size) throws Exception {
-        List<ClinchDetailVo> clinchDetailVos = this.clinchService.queryMingxi(market, code, size);
-        return ResultVo.success(clinchDetailVos);
+    /**
+     * 获取成交明细
+     *
+     * @param type type
+     * @param code code
+     * @param size size
+     * @return ResultVo
+     * @throws Exception
+     */
+    @GetMapping("/get/{type}/{code}/{size}")
+    public ResultVo<Object> getClinch(@PathVariable("type") int type, @PathVariable("code") String code, @PathVariable(value = "size") int size) throws Exception {
+        List<ClinchDetailVo> clinchDetailVos = this.clinchService.queryMingxi(type, code, size);
+        return ResultUtils.success(clinchDetailVos);
     }
 }

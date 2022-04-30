@@ -1,6 +1,6 @@
 package com.jobeth.service.impl;
 
-import com.jobeth.entity.PlateStockInfo;
+import com.jobeth.po.PlateStockInfo;
 import com.jobeth.mapper.PlateStockInfoMapper;
 import com.jobeth.service.PlateStockInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

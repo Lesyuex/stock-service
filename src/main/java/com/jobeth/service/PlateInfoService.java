@@ -1,6 +1,6 @@
 package com.jobeth.service;
 
-import com.jobeth.entity.PlateInfo;
+import com.jobeth.po.PlateInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.transaction.annotation.Transactional;
 

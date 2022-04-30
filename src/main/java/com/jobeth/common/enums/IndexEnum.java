@@ -1,4 +1,4 @@
-package com.jobeth.enums;
+package com.jobeth.common.enums;
 
 import lombok.Getter;
 

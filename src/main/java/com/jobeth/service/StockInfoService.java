@@ -3,6 +3,7 @@ package com.jobeth.service;
 import com.jobeth.vo.ClinchDetailVo;
 import com.jobeth.vo.StockDetailVo;
 import com.jobeth.vo.StockInfoVo;
+import com.jobeth.vo.StockSingleVo;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,9 @@ public interface StockInfoService {
      * @param codes code
      * @return List<StockVo>
      */
-    public List<StockDetailVo> query(String codes) throws Exception;
+    public List<StockDetailVo> getDetail(int type,String codes) throws Exception;
+
+    List<StockSingleVo> getSingle(int type,String codes) throws Exception;
 
     /**
      * 更新上证所的股票到数据库
@@ -35,7 +38,7 @@ public interface StockInfoService {
      */
     List<StockInfoVo> listAll();
 
-    Map<String, Object> queryMinutes(String market, String code) throws Exception;
+    Map<String, Object> queryMinutes(int type, String code) throws Exception;
 
 
 }

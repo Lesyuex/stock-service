@@ -1,12 +1,9 @@
-package com.jobeth.util;
+package com.jobeth.common.util;
 
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @date 2022/4/17 12:45:45
  * Description: -
  */
-public class SpringContextUtil  {
+public class SpringContextUtils {
 
     /**
      * Spring上下文
@@ -32,8 +29,8 @@ public class SpringContextUtil  {
     }
 
 
-    public static  SqlSession getSqlBatchSession(){
+    public static SqlSession getSqlBatchSession() {
         SqlSessionFactory sqlSessionFactory = applicationContext.getBean(SqlSessionFactory.class);
-        return sqlSessionFactory.openSession(ExecutorType.BATCH,false);
+        return sqlSessionFactory.openSession(ExecutorType.BATCH, false);
     }
 }

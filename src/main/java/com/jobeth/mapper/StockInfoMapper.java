@@ -1,6 +1,6 @@
 package com.jobeth.mapper;
 
-import com.jobeth.entity.StockInfo;
+import com.jobeth.po.StockInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Delete;
 

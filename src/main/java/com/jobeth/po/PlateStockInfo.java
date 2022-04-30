@@ -1,4 +1,4 @@
-package com.jobeth.entity;
+package com.jobeth.po;
 
 import java.io.Serializable;
 

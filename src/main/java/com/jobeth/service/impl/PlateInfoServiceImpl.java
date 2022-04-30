@@ -3,16 +3,16 @@ package com.jobeth.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.jobeth.dto.PlateStocksInfoDTO;
-import com.jobeth.entity.PlateInfo;
-import com.jobeth.entity.PlateStockInfo;
+import com.jobeth.dto.PlateStocksInfoDto;
+import com.jobeth.po.PlateInfo;
+import com.jobeth.po.PlateStockInfo;
 import com.jobeth.mapper.PlateInfoMapper;
 import com.jobeth.mapper.PlateStockInfoMapper;
 import com.jobeth.service.PlateInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jobeth.util.HttpClientUtil;
-import com.jobeth.util.PropertiesUtil;
-import com.jobeth.util.SpringContextUtil;
+import com.jobeth.common.util.HttpClientUtils;
+import com.jobeth.common.util.PropertiesUtils;
+import com.jobeth.common.util.SpringContextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.BeanUtils;
@@ -39,18 +39,18 @@ public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo
     @Override
     public void putPlate() {
         log.info("【开始获取所有板块详细数据...】");
-        String eastMoneyBk = PropertiesUtil.getByKey("eastMoneyBk");
+        String eastMoneyBk = PropertiesUtils.getByKey("eastMoneyBk");
         // 所有板块信息
-        List<PlateStocksInfoDTO> dtos = new ArrayList<>();
+        List<PlateStocksInfoDto> dtos = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
             String bKurl = eastMoneyBk.replace("bkIndex", String.valueOf(i));
-            String response = HttpClientUtil.sendGet(bKurl, null);
+            String response = HttpClientUtils.sendGet(bKurl, null);
             JSONObject resultObj = JSON.parseObject(response);
             // 从返回结果获取板块集合
             JSONObject data = resultObj.getJSONObject("data");
             JSONObject diff = data.getJSONObject("diff");
             for (String key : diff.keySet()) {
-                PlateStocksInfoDTO dto = new PlateStocksInfoDTO();
+                PlateStocksInfoDto dto = new PlateStocksInfoDto();
                 JSONObject plate = diff.getJSONObject(key);
                 dto.setCode(plate.getString("f12"));
                 dto.setName(plate.getString("f14"));
@@ -70,7 +70,7 @@ public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo
                 dtos.add(dto);
             }
         }
-        SqlSession sqlBatchSession = SpringContextUtil.getSqlBatchSession();
+        SqlSession sqlBatchSession = SpringContextUtils.getSqlBatchSession();
         PlateInfoMapper plateInfoMapper = sqlBatchSession.getMapper(PlateInfoMapper.class);
         PlateStockInfoMapper plateStockInfoMapper = sqlBatchSession.getMapper(PlateStockInfoMapper.class);
         try {
@@ -102,12 +102,12 @@ public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo
      * @param dto 板块信息
      * @return 成分股
      */
-    public List<PlateStockInfo> getPlateStockList(PlateStocksInfoDTO dto) {
-        String bkStocksStr = PropertiesUtil.getByKey("eastMoneyBkStocks");
+    public List<PlateStockInfo> getPlateStockList(PlateStocksInfoDto dto) {
+        String bkStocksStr = PropertiesUtils.getByKey("eastMoneyBkStocks");
         String bkCode = dto.getCode();
         // 发送请求
         String bkStocksUrl = bkStocksStr.replace("bkCode", bkCode);
-        String response = HttpClientUtil.sendGet(bkStocksUrl, null);
+        String response = HttpClientUtils.sendGet(bkStocksUrl, null);
         // 处理请求结果
         JSONObject bkStocksObj = JSON.parseObject(response);
         JSONObject bkStocksInfo = bkStocksObj.getJSONObject("data");

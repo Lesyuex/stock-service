@@ -1,15 +1,13 @@
 package com.jobeth.service.impl;
 
-import com.jobeth.enums.RequestUrlEnums;
 import com.jobeth.service.IndexService;
-import com.jobeth.util.PropertiesUtil;
-import com.jobeth.util.ReflectionUtils;
-import com.jobeth.util.RestTemplateUtil;
-import com.jobeth.util.StringUtil;
+import com.jobeth.common.util.PropertiesUtils;
+import com.jobeth.common.util.ReflectionUtils;
+import com.jobeth.common.util.RestTemplateUtils;
+import com.jobeth.common.util.StringUtils;
 import com.jobeth.vo.StockDetailVo;
 import com.jobeth.vo.StockSingleVo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,10 +34,10 @@ public class IndexServiceImpl implements IndexService {
     @Override
     public List<StockDetailVo> queryDetail(String codes) throws Exception {
         // 腾讯批量查询地址（详细信息）
-        String txBatch = PropertiesUtil.getByKey("txBatchDetail");
-        String formatCode = StringUtil.formatIndexCode(codes);
+        String txBatch = PropertiesUtils.getByKey("txBatchDetail");
+        String formatCode = StringUtils.formatIndexCode(codes);
         String url = String.format("%s%s", txBatch, formatCode);
-        String body = RestTemplateUtil.request(url, String.class);
+        String body = RestTemplateUtils.request(url, String.class);
         String str = body.replaceAll("\\n", "");
         String[] stockDetailArr = str.split(";");
         List<StockDetailVo> stockVoList = new ArrayList<>(stockDetailArr.length);
@@ -61,8 +59,8 @@ public class IndexServiceImpl implements IndexService {
     @Override
     public List<StockSingleVo> querySingle(String codes) throws Exception {
         // 腾讯批量查询地址（详细信息）
-        String txBatch = PropertiesUtil.getByKey("txBatchSingle");
-        String formatCode = StringUtil.formatIndexCode(codes);
+        String txBatch = PropertiesUtils.getByKey("txBatchSingle");
+        String formatCode = StringUtils.formatIndexCode(codes);
         String[] codeArr = formatCode.split(",");
         StringBuilder builder = new StringBuilder();
         for (String s : codeArr) {
@@ -72,7 +70,7 @@ public class IndexServiceImpl implements IndexService {
         }
         String substring = builder.substring(0, builder.length() - 1);
         String url = String.format("%s%s", txBatch, substring);
-        String body = RestTemplateUtil.request(url, String.class);
+        String body = RestTemplateUtils.request(url, String.class);
         String str = body.replaceAll("\\n", "");
         String[] stockSingleStrArr = str.split(";");
         List<StockSingleVo> stockVoList = new ArrayList<>(stockSingleStrArr.length);
