@@ -16,7 +16,5 @@ import java.util.List;
  * @since 2022-04-30
  */
 public interface StockKLineService extends IService<StockDayInfo> {
-    void putAllStockDay();
-
     List<StockKLineVo> queryK(KLineDto dto);
 }

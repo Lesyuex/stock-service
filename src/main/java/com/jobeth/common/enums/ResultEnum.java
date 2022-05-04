@@ -18,6 +18,8 @@ public enum ResultEnum {
      * 操作失败
      */
     FAIL(400, "操作失败！"),
+    UNKNOW_MARKET(300, "未知市场"),
+    ERROR_STOCK_CODE(301,"错误股票代码"),
     /**
      * 服务器内部错误
      */

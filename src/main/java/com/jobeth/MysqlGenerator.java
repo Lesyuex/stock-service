@@ -46,7 +46,7 @@ public class MysqlGenerator {
         //包配置
         PackageConfig packageConfig = new PackageConfig();
         packageConfig.setParent("com.jobeth");
-        packageConfig.setEntity("po");
+        packageConfig.setEntity("entity");
 /*        packageConfig.setMapper("mapper");
         packageConfig.setService("service");
         packageConfig.setServiceImpl("service.impl");
@@ -54,7 +54,7 @@ public class MysqlGenerator {
         autoGenerator.setPackageInfo(packageConfig);
         //策略配置
         StrategyConfig strategyConfig = new StrategyConfig();
-        strategyConfig.setInclude("stock_day_info");
+        strategyConfig.setInclude("stock_info");
         strategyConfig.setNaming(NamingStrategy.underline_to_camel);
         strategyConfig.setColumnNaming(NamingStrategy.underline_to_camel);
         strategyConfig.setEntityLombokModel(true);

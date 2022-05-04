@@ -33,19 +33,6 @@ public class StockKLineServiceImpl extends ServiceImpl<StockDayInfoMapper, Stock
     @Autowired
     private StockInfoMapper stockInfoMapper;
 
-    @Override
-    public void putAllStockDay() {
-        String code = "sh603138";
-        QueryWrapper<StockInfo> query = new QueryWrapper<>();
-        // 找出上市时间
-        query.select("LIST_DATE");
-        List<StockInfo> list = stockInfoMapper.selectList(query);
-        StockInfo stockInfo = list.get(0);
-        String listDate = DateUtils.formatDate(stockInfo.getListDate());
-
-
-    }
-
     /**
      * 获取 k线图
      *

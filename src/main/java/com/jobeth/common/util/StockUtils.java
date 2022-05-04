@@ -1,6 +1,7 @@
 package com.jobeth.common.util;
 
-import com.jobeth.common.enums.ExceptionEnum;
+
+import com.jobeth.common.enums.ResultEnum;
 import com.jobeth.common.excetion.StockException;
 import lombok.Getter;
 
@@ -41,7 +42,7 @@ public class StockUtils {
         } else if (MarketEnum.CN_INDEX.getType() == type) {
             return getCnStockCodes(codes, 1);
         } else {
-            throw new StockException(ExceptionEnum.UNKNOW_MARKET);
+            throw new StockException(ResultEnum.UNKNOW_MARKET);
         }
     }
 
@@ -78,7 +79,7 @@ public class StockUtils {
                 !code.startsWith("2") &&
                 !code.startsWith("3")) &&
                 code.length() != 6) {
-            throw new StockException(ExceptionEnum.ERROR_STOCK_CODE);
+            throw new StockException(ResultEnum.ERROR_STOCK_CODE);
         }
         if (code.startsWith("6") || code.startsWith("9")) return CN_STOCK_SH;
         return CN_STOCK_SZ;
@@ -92,7 +93,7 @@ public class StockUtils {
      */
     private static String getCnIndexPrefix(String code) {
         if ((!code.startsWith("0") && !code.startsWith("3")) || code.length() != 6) {
-            throw new StockException(ExceptionEnum.ERROR_STOCK_CODE);
+            throw new StockException(ResultEnum.ERROR_STOCK_CODE);
         }
         if (code.startsWith("0")) return CN_STOCK_SH;
         return CN_STOCK_SZ;

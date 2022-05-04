@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
@@ -24,11 +25,10 @@ public class StockInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 股票代码
+     * 股票代码带市场
      */
-    @TableId(value = "CODE", type = IdType.INPUT)
-    private String code;
-
+    @TableId(value = "MARKET_CODE", type = IdType.INPUT)
+    private String marketCode;
     /**
      * 股票代码
      */
@@ -75,7 +75,7 @@ public class StockInfo implements Serializable {
      * 上市时间
      */
     @TableField("LIST_DATE")
-    private String listDate;
+    private LocalDate listDate;
 
     /**
      * 上市板块
@@ -89,18 +89,5 @@ public class StockInfo implements Serializable {
      */
     @TableField("AB_FLAG")
     private String abFlag;
-
-    /**
-     * 退市时间
-     */
-    @TableField("DELIST_DATE")
-    private String delistDate;
-
-    /**
-     * 在板块第N个上市
-     */
-    @TableField("NUM")
-    private String num;
-
 
 }

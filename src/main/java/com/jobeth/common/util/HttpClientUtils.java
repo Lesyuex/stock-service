@@ -1,5 +1,7 @@
 package com.jobeth.common.util;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
@@ -14,6 +16,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,10 +28,20 @@ import java.util.Map;
  */
 public class HttpClientUtils {
 
-    public static void main(String[] args) {
-        String url = "https://push2.eastmoney.com/api/qt/kamtbs.rtmin/get?fields1=f1,f2,f3,f4&fields2=f51,f54,f52,f58,f53,f62,f56,f57,f60,f61";
-        String s = HttpClientUtils.sendGet(url, null);
-        System.out.println(s);
+    public static void main(String[] args) throws Exception {
+        String url = PropertiesUtils.getByKey("shStockList");
+        HashMap<String, String> headerMap = new HashMap<>(1);
+        // 接口需要Referer请求头信息
+        headerMap.put("Referer", "http://www.sse.com.cn/");
+        String json = HttpClientUtils.getWithHeader(url, headerMap);
+        // 解析数据
+        int i = json.indexOf("{");
+        int i1 = json.lastIndexOf("}");
+        String substring = json.substring(i, i1 + 1);
+        JSONObject jsonObject = JSONObject.parseObject(substring);
+        JacksonUtil.toPrettyFormat(jsonObject);
+        JSONArray resultArr = jsonObject.getJSONArray("result");
+        System.out.println(1);
     }
     /**
      * 调用POST请求

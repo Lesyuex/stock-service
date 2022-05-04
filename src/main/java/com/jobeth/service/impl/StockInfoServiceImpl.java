@@ -4,25 +4,34 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jobeth.base.BatchService;
+import com.jobeth.common.enums.ResultEnum;
+import com.jobeth.common.excetion.StockException;
 import com.jobeth.common.util.*;
-import com.jobeth.po.StockInfo;
 import com.jobeth.mapper.StockInfoMapper;
+import com.jobeth.model.StockInfoModel;
+import com.jobeth.po.StockInfo;
 import com.jobeth.service.StockInfoService;
 import com.jobeth.vo.StockDetailVo;
 import com.jobeth.vo.StockInfoVo;
 import com.jobeth.vo.StockSingleVo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,31 +42,25 @@ import java.util.*;
  */
 @Service
 @Slf4j
-public class StockInfoServiceImpl implements StockInfoService {
-    @Autowired
-    private StockInfoMapper stockInfoMapper;
-    @Autowired
-    private SqlSessionFactory sqlSessionFactory;
+public class StockInfoServiceImpl extends ServiceImpl<StockInfoMapper, StockInfo> implements StockInfoService {
 
     /**
+     * 股票代码 获取分时数据 (指数 和 股票通用)
      *
-     * 根据市场代码 + 股票代码 获取分时数据 (指数 和 股票通用)
-     * @param type 根据市场代码
      * @param code 股票代码
      * @return 分时数据
      * @throws Exception Exception
      */
     @Override
-    public Map<String, Object> queryMinutes(int type, String code) throws Exception {
+    public Map<String, Object> queryMinutes(String code) throws Exception {
         String txMinutes = PropertiesUtils.getByKey("txMinutes");
-        String realCode = StockUtils.getRealCodes(type, code);
-        String realUrl = String.format("%s%s", txMinutes, realCode);
+        String realUrl = String.format("%s%s", txMinutes, code);
         String res = RestTemplateUtils.request(realUrl, String.class);
         // 解析数据
         JSONObject jsonObject = JSON.parseObject(res);
         JSONObject data = jsonObject.getJSONObject("data");
-        JSONObject stock = data.getJSONObject(realCode);
-        String[] newestInfo = stock.getJSONObject("qt").getObject(realCode, String[].class);
+        JSONObject stock = data.getJSONObject(code);
+        String[] newestInfo = stock.getJSONObject("qt").getObject(code, String[].class);
 
         StockDetailVo stockDetailVo = ReflectionUtils.createDataByStrArr(newestInfo, StockDetailVo.class);
         // 分时图数据 [时间、价格、成交量、成交额] => [时间、价格、总成交量、总成交额]
@@ -117,6 +120,25 @@ public class StockInfoServiceImpl implements StockInfoService {
 
 
     /**
+     * 查询癌股所有股票
+     *
+     * @return 癌股所有股票
+     */
+    @Override
+    public List<StockInfoVo> listAll() {
+        QueryWrapper<StockInfo> query = new QueryWrapper<>();
+        query.select("MARKET_CODE", "SEC_NAME_CN");
+        List<StockInfo> list = this.baseMapper.selectList(query);
+        List<StockInfoVo> stockInfoVoList = new ArrayList<>(list.size());
+        for (StockInfo stockInfo : list) {
+            StockInfoVo stockInfoVo = new StockInfoVo();
+            BeanUtils.copyProperties(stockInfo, stockInfoVo);
+            stockInfoVoList.add(stockInfoVo);
+        }
+        return stockInfoVoList;
+    }
+
+    /**
      * 查询指数简单信息（可批量上证指数，深证成指 000001，399001）
      *
      * @param codes codes
@@ -124,11 +146,10 @@ public class StockInfoServiceImpl implements StockInfoService {
      * @throws Exception Exception
      */
     @Override
-    public List<StockSingleVo> getSingle(int type,String codes) throws Exception {
+    public List<StockSingleVo> getSingle(String codes) throws Exception {
         // 腾讯批量查询地址（详细信息）
         String txBatch = PropertiesUtils.getByKey("txBatchSingle");
-        String formatCode = StockUtils.getRealCodes(type,codes);
-        String[] codeArr = formatCode.split(",");
+        String[] codeArr = codes.split(",");
         StringBuilder builder = new StringBuilder();
         for (String s : codeArr) {
             builder.append("s_");
@@ -151,6 +172,7 @@ public class StockInfoServiceImpl implements StockInfoService {
         }
         return stockVoList;
     }
+
     /**
      * 根据传入的股票代码查询股票当前详细信息（可批量603138，000001）
      *
@@ -159,12 +181,10 @@ public class StockInfoServiceImpl implements StockInfoService {
      * @throws Exception Exception
      */
     @Override
-    public List<StockDetailVo> getDetail(int type,String codes) throws Exception {
+    public List<StockDetailVo> getDetail(String codes) throws Exception {
         // 腾讯批量查询地址（详细信息）
         String txBatch = PropertiesUtils.getByKey("txBatchDetail");
-        // 处理股票带码
-        String formatCode = StockUtils.getRealCodes(type,codes);
-        String url = String.format("%s%s", txBatch, formatCode);
+        String url = String.format("%s%s", txBatch, codes);
         // 解析数据
         String body = RestTemplateUtils.request(url, String.class);
         String str = body.replaceAll("\\n", "");
@@ -186,58 +206,36 @@ public class StockInfoServiceImpl implements StockInfoService {
      */
     @Override
     public void putStock() throws Exception {
-        SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
-        log.info("【获取所有股票数据...】");
+        SqlSession session = SpringContextUtils.getSqlBatchSession();
+        log.info("【获取所有股票数据】");
         StockInfoMapper mapper = session.getMapper(StockInfoMapper.class);
-        List<StockInfo> shList = this.getShStock();
-        log.info("【获取上交所股票数据完成】");
-        Map<String, List<StockInfo>> szStock = this.getSzStock();
-        log.info("【获取深交所股票数据完成】");
-        List<StockInfo> szList = szStock.get("dataList");
-        List<StockInfo> dataListAB = szStock.get("dataListAB");
         try {
-            log.info("【开始更新数据库数据】");
-            mapper.deleteAll();
-            shList.forEach(mapper::insert);
-            szList.forEach(mapper::insert);
-            dataListAB.forEach(mapper::updateSzBStock);
+            // 先删除所有数据
+            mapper.delete(null);
+            this.getShStock(mapper);
+            log.info("【获取上交所股票数据完成】");
+            this.getSzStock(mapper);
+            log.info("【获取深交所股票数据完成】");
             session.commit();
             session.clearCache();
             log.info("【更新数据到数据库完成】");
         } catch (Exception e) {
-            log.error("【插入数据库失败...】", e);
+            log.error("【更新数据到数据库失败】", e);
             session.rollback();
+            throw e;
         } finally {
             session.close();
         }
     }
 
-    /**
-     * 查询癌股所有股票
-     *
-     * @return 癌股所有股票
-     */
-    @Override
-    public List<StockInfoVo> listAll() {
-        QueryWrapper<StockInfo> query = new QueryWrapper<StockInfo>();
-        query.select("CODE", "SEC_NAME_CN", "LIST_BOARD");
-        List<StockInfo> list = this.stockInfoMapper.selectList(query);
-        List<StockInfoVo> stockInfoVoList = new ArrayList<>(list.size());
-        for (StockInfo stockInfo : list) {
-            StockInfoVo stockInfoVo = new StockInfoVo();
-            BeanUtils.copyProperties(stockInfo, stockInfoVo);
-            stockInfoVoList.add(stockInfoVo);
-        }
-        return stockInfoVoList;
-    }
 
     /**
      * 获取所有上交所的股票
      *
-     * @return List<StockInfo>
+     * @param mapper mapper
      * @throws Exception Exception
      */
-    public List<StockInfo> getShStock() throws Exception {
+    public void getShStock(StockInfoMapper mapper) throws Exception {
         String url = PropertiesUtils.getByKey("shStockList");
         HashMap<String, String> headerMap = new HashMap<>(1);
         // 接口需要Referer请求头信息
@@ -249,158 +247,70 @@ public class StockInfoServiceImpl implements StockInfoService {
         String substring = json.substring(i, i1 + 1);
         JSONObject jsonObject = JSONObject.parseObject(substring);
         JSONArray resultArr = jsonObject.getJSONArray("result");
-        List<StockInfo> list = new ArrayList<>();
         for (Object o : resultArr) {
             JSONObject stock = (JSONObject) o;
+            // 可以将a_stock_code 的字段类型转为aStockCode 对应的 JavaObject
             StockInfo stockInfo = stock.toJavaObject(StockInfo.class);
             // 处理b股
             String bStockCode = stockInfo.getBStockCode();
-            if ((stockInfo.getSecNameCn().indexOf("Ｂ") > 0 || stockInfo.getSecNameCn().indexOf("B") > 0) && !"-".equals(bStockCode)) {
-                stockInfo.setCode(stockInfo.getBStockCode());
+            if (!"-".equals(bStockCode) && (stockInfo.getSecNameCn().indexOf("Ｂ") > 0 || stockInfo.getSecNameCn().indexOf("B") > 0)) {
+                stockInfo.setMarketCode("sh" + stockInfo.getBStockCode());
                 stockInfo.setAbFlag("B");
             } else {
-                stockInfo.setCode(stockInfo.getAStockCode());
+                stockInfo.setMarketCode("sh" + stockInfo.getAStockCode());
                 stockInfo.setAbFlag("A");
             }
-            list.add(stockInfo);
+            mapper.insert(stockInfo);
         }
-        return list;
     }
 
-
-    /**
-     * 获取深交所所有股票
-     *
-     * @return 所有股票 + AB股股票
-     * @throws Exception Exception
-     */
-    public Map<String, List<StockInfo>> getSzStock() throws Exception {
-        HashMap<String, List<StockInfo>> map = new HashMap<>();
-        List<StockInfo> dataList = new ArrayList<>();
-        List<StockInfo> dataListAB = new ArrayList<>();
-        for (int tabKey = 1; tabKey <= 4; tabKey++) {
-            //获取深交所所有股票
-            JSONObject currentTabData = this.getDataByTabAndPage(tabKey, 1);
-            JSONArray pageData = currentTabData.getJSONArray("data");
-            // 先存数据
-            this.addData(pageData, dataList);
-            JSONObject metaData = (JSONObject) currentTabData.get("metadata");
-            int pageCount = metaData.getInteger("pagecount");
-            int currentPage = metaData.getInteger("pageno");
-            if (pageCount > currentPage) {
-                log.info("【深交所Tab{}共有{}页数据，开始获取其他页数据】", tabKey, pageCount);
-                for (int pageNo = 2; pageNo <= pageCount; pageNo++) {
-                    currentTabData = this.getDataByTabAndPage(tabKey, pageNo);
-                    pageData = currentTabData.getJSONArray("data");
-                    // 继续存数据
-                    if (tabKey == 4) {
-                        this.addABData(pageData, dataListAB);
-                    } else {
-                        this.addData(pageData, dataList);
-                    }
-                    log.info("深交所Tab{}共{}页，获取第{}页数据完成", tabKey, pageCount, pageNo);
-                    Thread.sleep(555);
+    public void getSzStock(StockInfoMapper mapper) {
+        String downUrl = PropertiesUtils.getByKey("downUrl");
+        String url = "";
+        for (int i = 1; i <= 2; i++) {
+            // tab1 为A股主板和创业板
+            // tab2 无
+            // tab3 b股
+            // tab4 a+b股信息
+            String tab = "tab" + i;
+            url = downUrl.replace("{tabPlace}", tab);
+            // 下载每个Tab页的文件
+            ResponseEntity<?> exchange = RestTemplateUtils.exchange(url, HttpMethod.GET, null, byte[].class);
+            byte[] file = (byte[]) exchange.getBody();
+            if (file == null) {
+                throw new StockException(ResultEnum.SERVER_NO_THIS_SOURCE);
+            }
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(file);
+            //一边读一边插入
+            ExcelUtils.readBatchInsert(byteArrayInputStream, StockInfoModel.class, new BatchService<StockInfoModel>() {
+                @Override
+                public void batchInsert(List<StockInfoModel> modelList) {
+                    insertByTab(modelList, tab, mapper);
                 }
-            }
+            });
         }
-        map.put("dataList", dataList);
-        map.put("dataListAB", dataListAB);
-        return map;
     }
 
-    public void addABData(JSONArray data, List<StockInfo> dataList) {
-        for (Object o : data) {
-            JSONObject stock = (JSONObject) o;
+    private void insertByTab(List<StockInfoModel> modelList, String tab, StockInfoMapper mapper) {
+        modelList.forEach(model -> {
             StockInfo stockInfo = new StockInfo();
-            String aStockCode = stock.getString("agdm") == null ? "-" : stock.getString("agdm");
-            stockInfo.setAStockCode(aStockCode);
-            String bStockCode = stock.getString("bgdm") == null ? "-" : stock.getString("bgdm");
-            stockInfo.setBStockCode(bStockCode);
-            dataList.add(stockInfo);
-        }
+            BeanUtils.copyProperties(model, stockInfo);
+            // 1:主板 2：科创板 3：创业板
+            if ("主板".equals(model.getBoardName())) {
+                stockInfo.setListBoard("1");
+            } else {
+                stockInfo.setListBoard("3");
+            }
+            boolean isAstock = "tab1".equals(tab);
+            stockInfo.setAbFlag(isAstock ? "A" : "B");
+            stockInfo.setAStockCode(model.getAstockCode());
+            stockInfo.setBStockCode(model.getBstockCode());
+            String code = isAstock ? model.getAstockCode() : model.getBstockCode();
+            stockInfo.setMarketCode("sz" + code);
+            stockInfo.setCompanyCode(code);
+            stockInfo.setSecNameCn(isAstock ? model.getAstockName() : model.getBstockName());
+            stockInfo.setListDate(isAstock ? LocalDate.parse(model.getAlistDate()) : LocalDate.parse(model.getBlistDate()));
+            mapper.insert(stockInfo);
+        });
     }
-
-    /**
-     * 解析当前数据并存放
-     *
-     * @param data     当前Tab的第N页数据
-     * @param dataList 数据容器
-     */
-    public void addData(JSONArray data, List<StockInfo> dataList) {
-        for (Object o : data) {
-            /*
-             * agdm: "000011"
-             * agjc: "<a href='http://www.szse.cn/certificate/individual/index.html?code=000011' target='_blank'><u>深物业A</u></a>"
-             * agltgb: "5.26"
-             * agssrq: "1992-03-30"
-             * agzgb: "5.28"
-             * bk: "主板"
-             * sshymc: "K 房地产"
-             * 或者
-             *  bgdm: "200468"
-             *  bgjc: "<a href='http://www.szse.cn/certificate/individual/index.html?code=200468' target='_blank'><u>宁通信B</u></a>"
-             *  bgltgb: "1.00"
-             *  bgssrq: "1997-05-22"
-             *  bgzgb: "1.00"
-             *  bk: "主板"
-             *  sshymc: "C 制造业"
-             * */
-
-            JSONObject stock = (JSONObject) o;
-            StockInfo stockInfo = new StockInfo();
-            String gzj = stock.getString("agjc");
-            if (gzj == null) {
-                gzj = stock.getString("bgjc");
-            }
-            int begin = gzj.indexOf("<u>");
-            int end = gzj.indexOf("</u>");
-            String name = gzj.substring(begin + 3, end);
-            stockInfo.setSecNameCn(name);
-            stockInfo.setSecNameFull(name);
-            stockInfo.setCompanyAbbr(name);
-            stockInfo.setCompanyAbbrEn("-");
-
-            String aStockCode = stock.getString("agdm") == null ? "-" : stock.getString("agdm");
-            stockInfo.setAStockCode(aStockCode);
-            String bStockCode = stock.getString("bgdm") == null ? "-" : stock.getString("bgdm");
-            stockInfo.setBStockCode(bStockCode);
-            if (!"-".equals(aStockCode)) {
-                stockInfo.setCode(stockInfo.getAStockCode());
-                stockInfo.setAbFlag("A");
-            }
-            if (!"-".equals(bStockCode)) {
-                stockInfo.setCode(stockInfo.getBStockCode());
-                stockInfo.setAbFlag("B");
-            }
-            String listDate = stock.getString("agssrq");
-            if (listDate == null) {
-                listDate = stock.getString("bgssrq");
-            }
-            listDate = listDate.replaceAll("-", "");
-            stockInfo.setListDate(listDate);
-            stockInfo.setDelistDate("-");
-            String listBoard = "主板".equals(stock.getString("bk")) ? "2" : "3";
-            stockInfo.setListBoard(listBoard);
-            dataList.add(stockInfo);
-        }
-    }
-
-    /**
-     * 根据Tab页和页数获取股票
-     *
-     * @param tab    第几个tab
-     * @param pageNo 当前Tab的第几页
-     * @return JSONObject
-     * @throws Exception Exception
-     */
-    public JSONObject getDataByTabAndPage(int tab, int pageNo) throws Exception {
-        String url = PropertiesUtils.getByKey("szStockList");
-        String tabKey = String.format("%s%s", "tab", tab);
-        String page = String.valueOf(pageNo);
-        String realUrl = url.replace("tab_key", tabKey).replaceAll("page_no", page);
-        String json = HttpClientUtils.getWithHeader(realUrl, new HashMap<>());
-        JSONArray tabPageNoData = JSON.parseObject(json, JSONArray.class);
-        return tabPageNoData.getJSONObject(tab - 1);
-    }
-
 }

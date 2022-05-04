@@ -1,6 +1,7 @@
 package com.jobeth.common.excetion;
 
-import com.jobeth.common.enums.ExceptionEnum;
+
+import com.jobeth.common.enums.ResultEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,8 +16,8 @@ public class StockException extends RuntimeException {
         this.message = message;
     }
 
-    public StockException(ExceptionEnum exceptionEnum){
-        this.code = exceptionEnum.getCode();
-        this.message = exceptionEnum.getMessage();
+    public StockException(ResultEnum resultEnum){
+        this.code = resultEnum.getCode();
+        this.message = resultEnum.getMessage();
     }
 }

@@ -13,11 +13,5 @@ import org.apache.ibatis.annotations.Delete;
  * @since 2022-04-18
  */
 public interface StockInfoMapper extends BaseMapper<StockInfo> {
-    /**
-     * 删除所有
-     */
-    @Delete("delete from stock_info")
-    void deleteAll();
-
     void updateSzBStock(StockInfo stockInfo);
 }

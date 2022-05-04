@@ -48,27 +48,25 @@ public class StockInfoController {
 
     /**
      * 获取最新分时数据
-     * @param type type
      * @param code code
      * @return 最新分时
      * @throws Exception Exception
      */
-    @GetMapping("/get/minutes/{type}/{code}")
-    public ResultVo<Map<String, Object>> getMinuites(@PathVariable("type") int type, @PathVariable("code") String code) throws Exception {
-        Map<String, Object> stringObjectMap = this.stockInfoService.queryMinutes(type, code);
+    @GetMapping("/get/minutes/{code}")
+    public ResultVo<Map<String, Object>> getMinuites(@PathVariable("code") String code) throws Exception {
+        Map<String, Object> stringObjectMap = this.stockInfoService.queryMinutes(code);
         return ResultUtils.success(stringObjectMap);
     }
 
     /**
      * 获取最新简单信息
-     * @param type 市场type
      * @param codes codes
      * @return 最新详细
      * @throws Exception Exception
      */
-    @GetMapping("/get/single/{type}/{codes}")
-    public ResultVo<Object> getSingle(@PathVariable("type") int type, @PathVariable("codes") String codes) throws Exception {
-        List<StockSingleVo> stockVoList = this.stockInfoService.getSingle(type, codes);
+    @GetMapping("/get/single/{codes}")
+    public ResultVo<Object> getSingle(@PathVariable("codes") String codes) throws Exception {
+        List<StockSingleVo> stockVoList = this.stockInfoService.getSingle(codes);
         if (stockVoList.size() <= 1) {
             return ResultUtils.success(stockVoList.get(0));
         }
@@ -77,14 +75,13 @@ public class StockInfoController {
 
     /**
      * 获取最新详细
-     * @param type 市场type
      * @param codes codes
      * @return 最新详细
      * @throws Exception Exception
      */
-    @GetMapping("/get/detail/{type}/{codes}")
-    public ResultVo<Object> getDetail(@PathVariable("type") int type, @PathVariable("codes") String codes) throws Exception {
-        List<StockDetailVo> stockDetailVoList = this.stockInfoService.getDetail(type, codes);
+    @GetMapping("/get/detail/{codes}")
+    public ResultVo<Object> getDetail(@PathVariable("codes") String codes) throws Exception {
+        List<StockDetailVo> stockDetailVoList = this.stockInfoService.getDetail(codes);
         if (stockDetailVoList.size() <= 1) {
             return ResultUtils.success(stockDetailVoList.get(0));
         }
