@@ -4,6 +4,7 @@ import com.jobeth.annotion.QtIndex;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,6 +14,11 @@ import java.lang.reflect.Field;
  * Description: -
  */
 public class ReflectionUtils {
+
+    public static void main(String[] args) {
+        Double d = new Double("3043258.3584");
+        System.out.println(d);
+    }
 
     public static Field findField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
         Object bean = SpringContextUtils.getBean(clazz);
@@ -29,11 +35,12 @@ public class ReflectionUtils {
             if (annotation != null) {
                 annValue = annotation.value();
                 int i = Integer.parseInt(annValue);
+
                 filed.setAccessible(true);
                 Class<?> datatType = filed.getType();
                 Constructor<?> dtConstru = datatType.getConstructor(String.class);
                 String str = arr[i];
-                if (datatType.getSuperclass().getName().equals("java.lang.Number")) {
+                if ("java.lang.Number".equals(datatType.getSuperclass().getName())) {
                     boolean b = StringUtils.checkStrIsNumber(str);
                     if (b) filed.set(instance, dtConstru.newInstance(str));
                     else filed.set(instance, null);

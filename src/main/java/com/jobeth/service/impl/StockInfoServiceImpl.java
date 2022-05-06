@@ -43,6 +43,18 @@ import java.util.Map;
 @Service
 @Slf4j
 public class StockInfoServiceImpl extends ServiceImpl<StockInfoMapper, StockInfo> implements StockInfoService {
+    private  List<StockInfoVo> stockInfoVoList = null;
+
+    public static void main(String[] args) {
+        double i = 5063064 *100;
+        double d =4377630434.1;
+        BigDecimal bigDecimal = new BigDecimal(d);
+        BigDecimal bigDecimal1 = new BigDecimal(i);
+        System.out.println(d/i);
+        double average = bigDecimal.divide(bigDecimal1, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
+        System.out.println(average);
+
+    }
 
     /**
      * 股票代码 获取分时数据 (指数 和 股票通用)
@@ -126,10 +138,13 @@ public class StockInfoServiceImpl extends ServiceImpl<StockInfoMapper, StockInfo
      */
     @Override
     public List<StockInfoVo> listAll() {
+        if (this.stockInfoVoList != null) {
+            return this.stockInfoVoList;
+        }
         QueryWrapper<StockInfo> query = new QueryWrapper<>();
         query.select("MARKET_CODE", "SEC_NAME_CN");
         List<StockInfo> list = this.baseMapper.selectList(query);
-        List<StockInfoVo> stockInfoVoList = new ArrayList<>(list.size());
+        this.stockInfoVoList = new ArrayList<>(list.size());
         for (StockInfo stockInfo : list) {
             StockInfoVo stockInfoVo = new StockInfoVo();
             BeanUtils.copyProperties(stockInfo, stockInfoVo);
@@ -151,9 +166,9 @@ public class StockInfoServiceImpl extends ServiceImpl<StockInfoMapper, StockInfo
         String txBatch = PropertiesUtils.getByKey("txBatchSingle");
         String[] codeArr = codes.split(",");
         StringBuilder builder = new StringBuilder();
-        for (String s : codeArr) {
+        for (String code : codeArr) {
             builder.append("s_");
-            builder.append(s);
+            builder.append(code);
             builder.append(",");
         }
         String substring = builder.substring(0, builder.length() - 1);

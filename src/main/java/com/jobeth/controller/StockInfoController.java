@@ -67,7 +67,7 @@ public class StockInfoController {
     @GetMapping("/get/single/{codes}")
     public ResultVo<Object> getSingle(@PathVariable("codes") String codes) throws Exception {
         List<StockSingleVo> stockVoList = this.stockInfoService.getSingle(codes);
-        if (stockVoList.size() <= 1) {
+        if (stockVoList.size() == 1) {
             return ResultUtils.success(stockVoList.get(0));
         }
         return ResultUtils.success(stockVoList);
@@ -82,7 +82,7 @@ public class StockInfoController {
     @GetMapping("/get/detail/{codes}")
     public ResultVo<Object> getDetail(@PathVariable("codes") String codes) throws Exception {
         List<StockDetailVo> stockDetailVoList = this.stockInfoService.getDetail(codes);
-        if (stockDetailVoList.size() <= 1) {
+        if (stockDetailVoList.size() == 1) {
             return ResultUtils.success(stockDetailVoList.get(0));
         }
         return ResultUtils.success(stockDetailVoList);

@@ -27,7 +27,7 @@ public class StockDetailVo implements Serializable {
     @QtIndex(value = "5",desc = "今开")
     private Double todayOpenPrice;
     @QtIndex(value = "6",desc = "成交量（手）")
-    private Integer volume;
+    private Double volume;
     @QtIndex(value = "7",desc = "外盘")
     private Integer outerDisk;
     @QtIndex(value = "8",desc = "内盘")
@@ -87,9 +87,9 @@ public class StockDetailVo implements Serializable {
     @QtIndex(value = "35",desc = "价格/成交量（手）/成交额 1710.00/27043/4681914206")
     private String clinchInfo;
     @QtIndex(value = "36",desc = "成交量（手）")
-    private Integer volume2;
+    private Double volume2;
     @QtIndex(value = "37",desc = "成交额（万）")
-    private Integer turnover;
+    private Double turnover;
     @QtIndex(value = "38",desc = "换手率")
     private Double turnoverRate;
     @QtIndex(value = "39",desc = "市盈率")
