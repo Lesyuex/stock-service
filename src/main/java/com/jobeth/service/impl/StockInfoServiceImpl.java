@@ -46,8 +46,8 @@ public class StockInfoServiceImpl extends ServiceImpl<StockInfoMapper, StockInfo
     private  List<StockInfoVo> stockInfoVoList = null;
 
     public static void main(String[] args) {
-        double i = 5063064 *100;
-        double d =4377630434.1;
+        double i = 809349 ;
+        double d =8093491177.481;
         BigDecimal bigDecimal = new BigDecimal(d);
         BigDecimal bigDecimal1 = new BigDecimal(i);
         System.out.println(d/i);
@@ -79,6 +79,9 @@ public class StockInfoServiceImpl extends ServiceImpl<StockInfoMapper, StockInfo
         JSONArray minutesData = stock.getJSONObject("data").getJSONArray("data");
         BigDecimal yestclose = BigDecimal.valueOf(stockDetailVo.getYesterdayPrice());
         BigDecimal bigDecimal100 = new BigDecimal(100);
+        double y1MaxValue = 0;
+        double y1MinValue = 0;
+        double absMaxPercent = 0;
         List<Object[]> newMinutesData = new ArrayList<>(minutesData.size());
         for (int i = 0; i < minutesData.size(); i++) {
             Object[] objects = new Object[7];
@@ -120,6 +123,11 @@ public class StockInfoServiceImpl extends ServiceImpl<StockInfoMapper, StockInfo
             BigDecimal diffPrice = minutesPrice.subtract(yestclose);
             double v = diffPrice.divide(yestclose, MathContext.DECIMAL128).multiply(bigDecimal100).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
             objects[6] = v;
+            double abs = Math.abs(v);
+            if (abs>absMaxPercent)
+            {
+                absMaxPercent = abs;
+            }
             newMinutesData.add(objects);
         }
 
@@ -127,6 +135,13 @@ public class StockInfoServiceImpl extends ServiceImpl<StockInfoMapper, StockInfo
         map.put("newestInfo", stockDetailVo);
         map.put("newestMinutes", newMinutesData);
         map.put("yestclose", yestclose);
+        map.put("y2MaxValue",absMaxPercent);
+        BigDecimal down = new BigDecimal(100d - absMaxPercent);
+        BigDecimal up = new BigDecimal(100d + absMaxPercent);
+        y1MaxValue = yestclose.multiply(up).divide(bigDecimal100, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
+        y1MinValue = yestclose.multiply(down).divide(bigDecimal100, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
+        map.put("y1MaxValue",y1MaxValue);
+        map.put("y1MinValue",y1MinValue);
         return map;
     }
 
