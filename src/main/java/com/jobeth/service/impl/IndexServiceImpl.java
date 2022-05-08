@@ -91,7 +91,13 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public Map<String, Object> queryMinutes(String code) throws Exception {
-        String txMinutes = PropertiesUtils.getByKey("txMinutes");
+        String txMinutes = null;
+        if (code.startsWith("hk")) {
+            txMinutes = PropertiesUtils.getByKey("hkMinutes");
+        }else{
+            txMinutes =  PropertiesUtils.getByKey("txMinutes");
+        }
+
         String realUrl = String.format("%s%s", txMinutes, code);
         String res = RestTemplateUtils.request(realUrl, String.class);
         // 解析数据

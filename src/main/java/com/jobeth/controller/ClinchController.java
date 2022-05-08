@@ -22,15 +22,14 @@ public class ClinchController {
     /**
      * 获取成交明细
      *
-     * @param type type
      * @param code code
      * @param size size
      * @return ResultVo
      * @throws Exception
      */
-    @GetMapping("/get/{type}/{code}/{size}")
-    public ResultVo<Object> getClinch(@PathVariable("type") int type, @PathVariable("code") String code, @PathVariable(value = "size") int size) throws Exception {
-        List<ClinchDetailVo> clinchDetailVos = this.clinchService.queryMingxi(type, code, size);
+    @GetMapping("/get/{code}/{size}")
+    public ResultVo<Object> getClinch( @PathVariable("code") String code, @PathVariable(value = "size") int size) throws Exception {
+        List<ClinchDetailVo> clinchDetailVos = this.clinchService.queryMingxi( code, size);
         return ResultUtils.success(clinchDetailVos);
     }
 }

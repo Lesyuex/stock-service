@@ -5,5 +5,5 @@ import com.jobeth.vo.ClinchDetailVo;
 import java.util.List;
 
 public interface ClinchService {
-    List<ClinchDetailVo> queryMingxi(int type, String code, int size) throws Exception;
+    List<ClinchDetailVo> queryMingxi( String code, int size) throws Exception;
 }

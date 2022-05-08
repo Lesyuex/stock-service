@@ -18,10 +18,9 @@ import java.util.List;
 public class ClinchServiceImpl implements ClinchService {
 
     @Override
-    public List<ClinchDetailVo> queryMingxi(int type, String code, int size) throws Exception {
+    public List<ClinchDetailVo> queryMingxi(String code, int size) throws Exception {
         String txMingxi = PropertiesUtils.getByKey("txMingxi");
-        String realCode = StockUtils.getRealCodes(type, code);
-        String url = txMingxi.replace("codePlace", realCode).replace("sizePlace", String.valueOf(size));
+        String url = txMingxi.replace("codePlace", code).replace("sizePlace", String.valueOf(size));
         String res = RestTemplateUtils.request(url, String.class);
         JSONObject resObj = JSON.parseObject(res);
         JSONArray array = resObj.getJSONObject("data").getJSONArray("data");
