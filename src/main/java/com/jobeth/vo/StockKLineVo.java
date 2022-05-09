@@ -62,5 +62,5 @@ public class StockKLineVo {
      * 成交量
      */
     @QtIndex("8")
-    private Integer volume;
+    private Double volume;
 }

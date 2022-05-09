@@ -94,8 +94,8 @@ public class IndexServiceImpl implements IndexService {
         String txMinutes = null;
         if (code.startsWith("hk")) {
             txMinutes = PropertiesUtils.getByKey("hkMinutes");
-        }else{
-            txMinutes =  PropertiesUtils.getByKey("txMinutes");
+        } else {
+            txMinutes = PropertiesUtils.getByKey("txMinutes");
         }
 
         String realUrl = String.format("%s%s", txMinutes, code);
@@ -128,53 +128,52 @@ public class IndexServiceImpl implements IndexService {
             }
             StringBuilder stringBuilder = new StringBuilder(dateStr);
             stringBuilder.insert(2, ":");
-            objectList[0]=stringBuilder.toString();
+            objectList[0] = stringBuilder.toString();
             //当前价
             BigDecimal minutesPrice = detail.getBigDecimal(1);
-            objectList[1]=minutesPrice;
+            objectList[1] = minutesPrice;
             // 累计成交量
             BigDecimal volume = detail.getBigDecimal(2);
-            objectList[2]=volume;
+            objectList[2] = volume;
             // 总成交额
-            objectList[3]="-";
+            objectList[3] = "-";
             // 每分钟的成交量
             BigDecimal currentMinuVolume = volume;
-            objectList[4]=volume;
-            if (i > 0){
+            objectList[4] = volume;
+            if (i > 0) {
                 // 取上一分钟的总成交量
                 String preJson = "[" + minutesData.getString(i - 1).replaceAll(" ", ",") + "]";
                 JSONArray preDetail = JSON.parseObject(preJson, JSONArray.class);
                 currentMinuVolume = volume.subtract(preDetail.getBigDecimal(2));
-                objectList[4]=currentMinuVolume;
+                objectList[4] = currentMinuVolume;
             }
             //均价
             //总成交
             clinch = minutesPrice.multiply(currentMinuVolume).add(clinch);
             BigDecimal average = clinch.divide(volume, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN);
-            objectList[5]=average;
+            objectList[5] = average;
             //最新涨跌幅
             BigDecimal diffPrice = minutesPrice.subtract(yestclose);
             BigDecimal v = diffPrice.divide(yestclose, MathContext.DECIMAL128).multiply(bigDecimal100).setScale(2, RoundingMode.HALF_DOWN);
             double percentVal = v.doubleValue();
             double abs = Math.abs(percentVal);
-            if (abs>absMaxPercent)
-            {
+            if (abs > absMaxPercent) {
                 absMaxPercent = abs;
             }
-            objectList[6]=v;
+            objectList[6] = v;
             newMinutesData.add(objectList);
         }
         HashMap<String, Object> map = new HashMap<>();
         map.put("newestInfo", stockDetailVo);
         map.put("newestMinutes", newMinutesData);
         map.put("yestclose", yestclose);
-        map.put("y2MaxValue",absMaxPercent);
+        map.put("y2MaxValue", absMaxPercent);
         BigDecimal down = new BigDecimal(100d - absMaxPercent);
         BigDecimal up = new BigDecimal(100d + absMaxPercent);
         y1MaxValue = yestclose.multiply(up).divide(bigDecimal100, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
         y1MinValue = yestclose.multiply(down).divide(bigDecimal100, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
-        map.put("y1MaxValue",y1MaxValue);
-        map.put("y1MinValue",y1MinValue);
+        map.put("y1MaxValue", y1MaxValue);
+        map.put("y1MinValue", y1MinValue);
         return map;
     }
 }

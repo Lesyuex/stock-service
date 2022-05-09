@@ -12,8 +12,7 @@ import lombok.Data;
 @Data
 public class KLineDto {
     // 类型
-    private int type;
-    private String kType;
+    private String type;
     private String code;
     private String startDate;
     private String endDate;

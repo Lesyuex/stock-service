@@ -7,11 +7,9 @@ import com.jobeth.common.util.*;
 import com.jobeth.dto.KLineDto;
 import com.jobeth.mapper.StockDayInfoMapper;
 import com.jobeth.po.StockDayInfo;
-import com.jobeth.mapper.StockInfoMapper;
 import com.jobeth.service.StockKLineService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jobeth.vo.StockKLineVo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,8 +26,6 @@ import java.util.List;
  */
 @Service
 public class StockKLineServiceImpl extends ServiceImpl<StockDayInfoMapper, StockDayInfo> implements StockKLineService {
-    @Autowired
-    private StockInfoMapper stockInfoMapper;
 
     /**
      * 获取 k线图
@@ -40,17 +36,19 @@ public class StockKLineServiceImpl extends ServiceImpl<StockDayInfoMapper, Stock
     @Override
     public List<StockKLineVo> queryK(KLineDto dto) {
         String kLine = PropertiesUtils.getByKey("kLine");
-        String realCodes = StockUtils.getRealCodes(dto.getType(), dto.getCode());
         String url = kLine
-                .replace("typePlace", dto.getKType())
-                .replace("codePlace", realCodes)
+                .replace("typePlace", dto.getType())
+                .replace("codePlace", dto.getCode())
                 .replace("startDatePlace", dto.getStartDate())
                 .replace("endDatePlace", dto.getEndDate());
         String res = RestTemplateUtils.request(url, String.class);
-        int begin = res.indexOf("qfq=");
-        String json = res.substring(begin+4);
-        JSONObject jsonObject = JSON.parseObject(json);
-        JSONArray jsonArray = jsonObject.getJSONObject("data").getJSONObject(realCodes).getJSONArray("qfqday");
+
+
+        JSONObject jsonObject = JSON.parseObject(res);
+        JSONArray jsonArray = jsonObject.getJSONObject("data").getJSONObject(dto.getCode()).getJSONArray(String.format("%s%s","qfq",dto.getType()));
+        if (jsonArray == null){
+            jsonArray = jsonObject.getJSONObject("data").getJSONObject(dto.getCode()).getJSONArray(dto.getType());
+        }
         List<StockKLineVo> list = new ArrayList<>(jsonArray.size());
         jsonArray.forEach(o->{
             JSONArray arr = (JSONArray) o;
@@ -62,7 +60,7 @@ public class StockKLineServiceImpl extends ServiceImpl<StockDayInfoMapper, Stock
             stockKLineVo.setLowest(arr.getBigDecimal(4));
             stockKLineVo.setTurnover(arr.getBigDecimal(5));
             stockKLineVo.setTurnoverRate(arr.getBigDecimal(7));
-            stockKLineVo.setVolume(arr.getInteger(8));
+            stockKLineVo.setVolume(arr.getDouble(8));
             list.add(stockKLineVo);
         });
         return list;
