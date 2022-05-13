@@ -17,7 +17,7 @@ public class ClinchDetailVo implements Serializable {
     @QtIndex(value = "3",desc = "涨跌")
     private Double diff;
     @QtIndex(value = "4",desc = "成交量")
-    private Integer volume;
+    private Double volume;
     @QtIndex(value = "5",desc = "成交额")
     private Double turnover;
     @QtIndex(value = "6",desc = "主动买卖")

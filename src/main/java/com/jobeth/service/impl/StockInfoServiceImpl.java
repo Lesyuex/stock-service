@@ -13,6 +13,7 @@ import com.jobeth.mapper.StockInfoMapper;
 import com.jobeth.model.StockInfoModel;
 import com.jobeth.po.StockInfo;
 import com.jobeth.service.StockInfoService;
+import com.jobeth.vo.ClinchDetailVo;
 import com.jobeth.vo.StockDetailVo;
 import com.jobeth.vo.StockInfoVo;
 import com.jobeth.vo.StockSingleVo;
@@ -222,7 +223,7 @@ public class StockInfoServiceImpl extends ServiceImpl<StockInfoMapper, StockInfo
         List<StockDetailVo> stockDetailVoList = new ArrayList<>(stockDetailArr.length);
         for (String stockDetail : stockDetailArr) {
             String[] arr = stockDetail.split("~");
-            StockDetailVo stockVo = StockDetailVo.generateStockByStrArr(arr);
+            StockDetailVo stockVo = ReflectionUtils.createDataByStrArr(arr, StockDetailVo.class);
             stockDetailVoList.add(stockVo);
         }
         return stockDetailVoList;
