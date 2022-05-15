@@ -11,9 +11,11 @@ import lombok.Data;
  */
 @Data
 public class KLineDto {
-    // 类型
-    private String type;
+    // 类型 day week month seson year   m1 m5 m15 m30 m60 m120
+    private String kname;
+    private int ktype;
     private String code;
     private String startDate;
     private String endDate;
+    private int stockType;
 }

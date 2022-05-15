@@ -1,6 +1,7 @@
 package com.jobeth.controller;
 
 
+import com.jobeth.common.enums.ResultEnum;
 import com.jobeth.common.util.RestTemplateUtils;
 import com.jobeth.common.util.ResultUtils;
 import com.jobeth.dto.KLineDto;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -27,13 +29,30 @@ import java.util.List;
 public class StockKLineController {
     @Autowired
     private StockKLineService stockKLineService;
-    @Autowired
-    private StockInfoService stockInfoService;
 
-    @PostMapping("/query")
-    public ResultVo<List<StockKLineVo>> query(@RequestBody KLineDto kLineDto) throws FileNotFoundException {
-        List<StockKLineVo> lsit = this.stockKLineService.queryK(kLineDto);
-        return ResultUtils.success(lsit);
+    /**
+     * 日k 周k 月k 季k 年k
+     * 1分钟k 5分钟k 15分钟k 30分钟k 60分钟k 120分钟k
+     * @param kLineDto kLineDto
+     * @return ResultVo
+     */
+    @PostMapping("/get")
+    public ResultVo<List<StockKLineVo>> query(@RequestBody KLineDto kLineDto){
+        if (kLineDto.getKtype() == 0){
+            List<StockKLineVo> list = this.stockKLineService.queryK(kLineDto);
+            return ResultUtils.success(list);
+        }else if (kLineDto.getKtype() ==1){
+            List<StockKLineVo> minuK = this.stockKLineService.getMinuK(kLineDto);
+            return ResultUtils.success(minuK);
+        }
+        return ResultUtils.fail(ResultEnum.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/get/fiveday/line/{code}")
+    public ResultVo<Object> fiveday(@PathVariable("code") String code) throws Exception {
+        Map<String, Object> fiveday = this.stockKLineService.getFiveday(code);
+        return ResultUtils.success(fiveday);
     }
 }
+
 

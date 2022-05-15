@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.jobeth.vo.StockKLineVo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -17,4 +18,6 @@ import java.util.List;
  */
 public interface StockKLineService extends IService<StockDayInfo> {
     List<StockKLineVo> queryK(KLineDto dto);
+    List<StockKLineVo> getMinuK(KLineDto dto);
+    Map<String, Object> getFiveday(String code) throws Exception;
 }

@@ -112,8 +112,8 @@ public class IndexServiceImpl implements IndexService {
         BigDecimal yestclose = BigDecimal.valueOf(stockDetailVo.getYesterdayPrice());
         BigDecimal bigDecimal100 = new BigDecimal(100);
         List<Object[]> newMinutesData = new ArrayList<>(minutesData.size());
-        double y1MaxValue = 0;
-        double y1MinValue = 0;
+        double y1MaxValue;
+        double y1MinValue;
         double absMaxPercent = 0;
         BigDecimal clinch = new BigDecimal(0);
         for (int i = 0; i < minutesData.size(); i++) {

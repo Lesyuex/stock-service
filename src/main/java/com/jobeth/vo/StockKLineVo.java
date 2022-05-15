@@ -1,5 +1,6 @@
 package com.jobeth.vo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jobeth.annotion.QtIndex;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ import java.time.LocalDate;
  * Description: -
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class StockKLineVo {
 
     /**
