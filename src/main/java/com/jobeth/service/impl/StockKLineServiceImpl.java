@@ -5,13 +5,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jobeth.common.util.*;
 import com.jobeth.dto.KLineDto;
-import com.jobeth.mapper.StockDayInfoMapper;
-import com.jobeth.po.StockDayInfo;
+
 import com.jobeth.service.StockKLineService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import com.jobeth.vo.FivedayVo;
 import com.jobeth.vo.MinutesVo;
 import com.jobeth.vo.StockKLineVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,7 +32,8 @@ import java.util.Map;
  * @since 2022-04-30
  */
 @Service
-public class StockKLineServiceImpl extends ServiceImpl<StockDayInfoMapper, StockDayInfo> implements StockKLineService {
+@Slf4j
+public class StockKLineServiceImpl implements StockKLineService {
 
     /**
      * 获取 k线图
@@ -65,19 +66,22 @@ public class StockKLineServiceImpl extends ServiceImpl<StockDayInfoMapper, Stock
                     .getJSONArray(dto.getKname());
         }
         List<StockKLineVo> list = new ArrayList<>(jsonArray.size());
-        jsonArray.forEach(o -> {
-            JSONArray arr = (JSONArray) o;
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONArray day = jsonArray.getJSONArray(i);
             StockKLineVo stockKLineVo = new StockKLineVo();
-            stockKLineVo.setDate(arr.getObject(0, LocalDate.class));
-            stockKLineVo.setOpen(arr.getBigDecimal(1));
-            stockKLineVo.setClose(arr.getBigDecimal(2));
-            stockKLineVo.setHighest(arr.getBigDecimal(3));
-            stockKLineVo.setLowest(arr.getBigDecimal(4));
-            stockKLineVo.setTurnover(arr.getBigDecimal(5));
-            stockKLineVo.setTurnoverRate(arr.getBigDecimal(7));
-            stockKLineVo.setVolume(arr.getDouble(8));
+            stockKLineVo.setDate(day.getObject(0, LocalDate.class));
+            stockKLineVo.setOpen(day.getBigDecimal(1));
+            stockKLineVo.setClose(day.getBigDecimal(2));
+            stockKLineVo.setHighest(day.getBigDecimal(3));
+            stockKLineVo.setLowest(day.getBigDecimal(4));
+            stockKLineVo.setTurnover(day.getBigDecimal(5));
+            stockKLineVo.setTurnoverRate(day.getBigDecimal(7));
+            stockKLineVo.setVolume(day.getDouble(8));
             list.add(stockKLineVo);
-        });
+        }
+
+        int[] maArr ={5,10,20,30,60,120};
+        CalcUtils.calcMa(maArr,list);
         return list;
     }
 
@@ -125,7 +129,7 @@ public class StockKLineServiceImpl extends ServiceImpl<StockDayInfoMapper, Stock
                     //均价
                     BigDecimal average = clinch.divide(volume, MathContext.DECIMAL128).divide(bigDecimal, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN);
                     minutesVo.setAveragePrice(average);
-                    // 涨跌情况 最新涨跌幅
+                    // 涨跌情况 涨跌幅
                     BigDecimal minutesPrice = minutesVo.getPrice();
                     BigDecimal changeValue = minutesPrice.subtract(beginPrice);
                     minutesVo.setChangeValue(changeValue);

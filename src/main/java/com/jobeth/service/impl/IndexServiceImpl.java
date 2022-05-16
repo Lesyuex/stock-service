@@ -3,6 +3,7 @@ package com.jobeth.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.jobeth.common.util.CalcUtils;
 import com.jobeth.common.util.PropertiesUtils;
 import com.jobeth.common.util.ReflectionUtils;
 import com.jobeth.common.util.RestTemplateUtils;
@@ -104,7 +105,12 @@ public class IndexServiceImpl implements IndexService {
         JSONObject jsonObject = JSON.parseObject(res);
         JSONObject data = jsonObject.getJSONObject("data");
         JSONObject stock = data.getJSONObject(code);
-        String[] newestInfo = stock.getJSONObject("qt").getObject(code, String[].class);
+        JSONObject qt = stock.getJSONObject("qt");
+        String[] newestInfo = qt.getObject(code, String[].class);
+        String marketStr = qt.getJSONArray("market").getString(0);
+        String market = code.substring(0, 2).toUpperCase();
+        // 判断是休市还是交易
+        boolean marketOpen = marketStr.indexOf(market + "_open") > 0;
 
         StockDetailVo stockDetailVo = ReflectionUtils.createDataByStrArr(newestInfo, StockDetailVo.class);
         // 分时图数据 [时间、价格、成交量、成交额] => [时间、价格、总成交量、总成交额]
@@ -112,8 +118,6 @@ public class IndexServiceImpl implements IndexService {
         BigDecimal yestclose = BigDecimal.valueOf(stockDetailVo.getYesterdayPrice());
         BigDecimal bigDecimal100 = new BigDecimal(100);
         List<Object[]> newMinutesData = new ArrayList<>(minutesData.size());
-        double y1MaxValue;
-        double y1MinValue;
         double absMaxPercent = 0;
         BigDecimal clinch = new BigDecimal(0);
         for (int i = 0; i < minutesData.size(); i++) {
@@ -167,13 +171,9 @@ public class IndexServiceImpl implements IndexService {
         map.put("newestInfo", stockDetailVo);
         map.put("newestMinutes", newMinutesData);
         map.put("yestclose", yestclose);
-        map.put("y2MaxValue", absMaxPercent);
-        BigDecimal down = new BigDecimal(100d - absMaxPercent);
-        BigDecimal up = new BigDecimal(100d + absMaxPercent);
-        y1MaxValue = yestclose.multiply(up).divide(bigDecimal100, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
-        y1MinValue = yestclose.multiply(down).divide(bigDecimal100, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
-        map.put("y1MaxValue", y1MaxValue);
-        map.put("y1MinValue", y1MinValue);
+        map.put("marketOpen", marketOpen);
+        Map<String, Object> y = CalcUtils.calcYaxisInfo(yestclose, absMaxPercent);
+        map.putAll(y);
         return map;
     }
 }

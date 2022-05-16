@@ -4,6 +4,8 @@ import com.jobeth.common.util.SpringContextUtils;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
+
 /**
  * Created with IntelliJ IDEA.
  *
@@ -13,6 +15,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @MapperScan("com.jobeth.mapper")
+@EnableCaching
 public class StockApplication {
     public static void main(String[] args) {
         SpringContextUtils.applicationContext = SpringApplication.run(StockApplication.class,args);

@@ -6,6 +6,16 @@ spring:
     username: root
     password: 123456
     url: jdbc:mysql://localhost:3306/stock_db
+  redis:
+    host: localhost
+    port: 6379
+    jedis:
+      pool:
+        max-active: 100
+        max-idle: 10
+        max-wait: 100000
+    timeout: 5000
+    database: 0
   application:
     name: Stock-Service
     version: v888
@@ -16,4 +26,8 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   mapper-locations: com/jobeth/mapper/xml/*.xml
+# 打印sql
+logging:
+  level:
+    com.jobeth.mapper: debug
 

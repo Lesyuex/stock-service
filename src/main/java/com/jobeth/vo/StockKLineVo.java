@@ -6,6 +6,8 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -65,4 +67,6 @@ public class StockKLineVo {
      */
     @QtIndex("8")
     private Double volume;
+
+    private Map<String,Object> maMap = new HashMap<>();
 }

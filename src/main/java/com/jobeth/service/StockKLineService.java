@@ -16,7 +16,7 @@ import java.util.Map;
  * @author jobeth
  * @since 2022-04-30
  */
-public interface StockKLineService extends IService<StockDayInfo> {
+public interface StockKLineService {
     List<StockKLineVo> queryK(KLineDto dto);
     List<StockKLineVo> getMinuK(KLineDto dto);
     Map<String, Object> getFiveday(String code) throws Exception;
