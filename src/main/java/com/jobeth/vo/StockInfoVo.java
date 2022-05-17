@@ -21,4 +21,9 @@ public class StockInfoVo {
      * 股票简称
      */
     private String secNameCn;
+
+    /**
+     * 类型 1 股票 2 指数 3 板块 4 基金
+     */
+    private int type;
 }

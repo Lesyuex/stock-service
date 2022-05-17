@@ -37,5 +37,5 @@ public interface StockInfoService{
      */
     List<StockInfoVo> listAll();
 
-    Map<String, Object> queryMinutes(String code) throws Exception;
+    Map<String, Object> queryMinutes(int type, String code) throws Exception;
 }

@@ -122,20 +122,5 @@ public class StockDetailVo implements Serializable {
     private Double staPriceRate;
     @QtIndex(value = "57",desc = "成交额")
     private Double turnOver;
-    public static StockDetailVo generateStockByStrArr(String[] arr) throws IllegalAccessException {
-        StockDetailVo shareVo = new StockDetailVo();
-        Class<?> aClass = shareVo.getClass();
-        Field[] filedArr = aClass.getDeclaredFields();
-        for (Field filed : filedArr) {
-            QtIndex annotation = filed.getAnnotation(QtIndex.class);
-            String value = null;
-            if (annotation != null) {
-                value = annotation.value();
-                int i = Integer.parseInt(value);
-                filed.setAccessible(true);
-                filed.set(shareVo,arr[i]);
-            }
-        }
-        return shareVo;
-    }
+
 }

@@ -8,6 +8,7 @@ import com.jobeth.common.util.PropertiesUtils;
 import com.jobeth.common.util.ReflectionUtils;
 import com.jobeth.common.util.RestTemplateUtils;
 import com.jobeth.service.IndexService;
+import com.jobeth.vo.MinutesVo;
 import com.jobeth.vo.StockDetailVo;
 import com.jobeth.vo.StockSingleVo;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,8 @@ import java.util.Map;
  */
 @Service
 public class IndexServiceImpl implements IndexService {
+    private static final BigDecimal ZERO = new BigDecimal(0);
+    private static final BigDecimal HUNDREN = new BigDecimal(100);
     /**
      * 根据传入的股票代码查询股票当前详细信息（可批量603138，000001）
      *
@@ -48,7 +51,7 @@ public class IndexServiceImpl implements IndexService {
         List<StockDetailVo> stockDetailVoList = new ArrayList<>(stockDetailArr.length);
         for (String stockDetail : stockDetailArr) {
             String[] arr = stockDetail.split("~");
-            StockDetailVo stockVo = StockDetailVo.generateStockByStrArr(arr);
+            StockDetailVo stockVo = ReflectionUtils.createDataByStrArr(arr,StockDetailVo.class);
             stockDetailVoList.add(stockVo);
         }
         return stockDetailVoList;
@@ -64,6 +67,7 @@ public class IndexServiceImpl implements IndexService {
      */
     @Override
     public List<StockSingleVo> getSingle(String codes) throws Exception {
+
         // 腾讯批量查询地址（详细信息）
         String txBatch = PropertiesUtils.getByKey("txBatchSingle");
         String[] codeArr = codes.split(",");
@@ -106,24 +110,31 @@ public class IndexServiceImpl implements IndexService {
         JSONObject data = jsonObject.getJSONObject("data");
         JSONObject stock = data.getJSONObject(code);
         JSONObject qt = stock.getJSONObject("qt");
-        String[] newestInfo = qt.getObject(code, String[].class);
+        // 判断是休市还是交易
         String marketStr = qt.getJSONArray("market").getString(0);
         String market = code.substring(0, 2).toUpperCase();
-        // 判断是休市还是交易
         boolean marketOpen = marketStr.indexOf(market + "_open") > 0;
-
+        // 股票最新信息
+        String[] newestInfo = qt.getObject(code, String[].class);
         StockDetailVo stockDetailVo = ReflectionUtils.createDataByStrArr(newestInfo, StockDetailVo.class);
         // 分时图数据 [时间、价格、成交量、成交额] => [时间、价格、总成交量、总成交额]
         JSONArray minutesData = stock.getJSONObject("data").getJSONArray("data");
         BigDecimal yestclose = BigDecimal.valueOf(stockDetailVo.getYesterdayPrice());
-        BigDecimal bigDecimal100 = new BigDecimal(100);
-        List<Object[]> newMinutesData = new ArrayList<>(minutesData.size());
+
+        List<MinutesVo> newMinutesData = new ArrayList<>(minutesData.size());
         double absMaxPercent = 0;
         BigDecimal clinch = new BigDecimal(0);
-        for (int i = 0; i < minutesData.size(); i++) {
+      /*  for (int i = 0; i < minutesData.size(); i++) {
+            String minuStr = minutesData.getString(i);
+            MinutesVo minutesVo = ReflectionUtils.createDataByStrArr(minuStr.split(" "), MinutesVo.class);
             // 每分钟的数据都是json字符串
-            String json = "[" + minutesData.getString(i).replaceAll(" ", ",") + "]";
-            JSONArray detail = JSON.parseObject(json, JSONArray.class);
+            StringBuilder builder = new StringBuilder(minutesVo.getTime());
+            if (builder.length() == 3) {
+                builder.insert(0, "0");
+            }
+            builder.insert(2, ":");
+            minutesVo.setTime(builder.toString());
+            // 计算均价 （成交额除以成交量）//累计成交量//累计成交额
             Object[] objectList = new Object[7];
             // 格式化date 0930 => 09:30
             String dateStr = detail.getString(0);
@@ -154,11 +165,11 @@ public class IndexServiceImpl implements IndexService {
             //均价
             //总成交
             clinch = minutesPrice.multiply(currentMinuVolume).add(clinch);
-            BigDecimal average = clinch.divide(volume, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN);
+            BigDecimal average = volume.compareTo(ZERO) == 0 ? ZERO : clinch.divide(volume, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN);
             objectList[5] = average;
             //最新涨跌幅
             BigDecimal diffPrice = minutesPrice.subtract(yestclose);
-            BigDecimal v = diffPrice.divide(yestclose, MathContext.DECIMAL128).multiply(bigDecimal100).setScale(2, RoundingMode.HALF_DOWN);
+            BigDecimal v = diffPrice.divide(yestclose, MathContext.DECIMAL128).multiply(HUNDREN).setScale(2, RoundingMode.HALF_DOWN);
             double percentVal = v.doubleValue();
             double abs = Math.abs(percentVal);
             if (abs > absMaxPercent) {
@@ -166,7 +177,7 @@ public class IndexServiceImpl implements IndexService {
             }
             objectList[6] = v;
             newMinutesData.add(objectList);
-        }
+        }*/
         HashMap<String, Object> map = new HashMap<>();
         map.put("newestInfo", stockDetailVo);
         map.put("newestMinutes", newMinutesData);

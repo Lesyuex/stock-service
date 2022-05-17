@@ -27,6 +27,7 @@ public class StockInfoController {
 
     /**
      * 获取A股所有股票更新到数据库
+     *
      * @return 状态
      * @throws Exception Exception
      */
@@ -38,6 +39,7 @@ public class StockInfoController {
 
     /**
      * 查询所有股票
+     *
      * @return 所有股票
      */
     @GetMapping("/list/all")
@@ -48,18 +50,21 @@ public class StockInfoController {
 
     /**
      * 获取最新分时数据
-     * @param code code
+     *
+     * @param type type 1 股票 2 指数 3 基金
+     * @param code code 股票代码 带前缀
      * @return 最新分时
      * @throws Exception Exception
      */
-    @GetMapping("/get/minutes/{code}")
-    public ResultVo<Map<String, Object>> getMinuites(@PathVariable("code") String code) throws Exception {
-        Map<String, Object> stringObjectMap = this.stockInfoService.queryMinutes(code);
+    @GetMapping("/get/minutes/{type}/{code}")
+    public ResultVo<Map<String, Object>> getMinuites(@PathVariable("type") int type, @PathVariable("code") String code) throws Exception {
+        Map<String, Object> stringObjectMap = this.stockInfoService.queryMinutes(type,code);
         return ResultUtils.success(stringObjectMap);
     }
 
     /**
      * 获取最新简单信息
+     *
      * @param codes codes
      * @return 最新详细
      * @throws Exception Exception
@@ -75,6 +80,7 @@ public class StockInfoController {
 
     /**
      * 获取最新详细
+     *
      * @param codes codes
      * @return 最新详细
      * @throws Exception Exception

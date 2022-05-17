@@ -3,6 +3,7 @@ package com.jobeth.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.jobeth.common.NumberContext;
 import com.jobeth.common.util.*;
 import com.jobeth.dto.KLineDto;
 
@@ -34,6 +35,7 @@ import java.util.Map;
 @Service
 @Slf4j
 public class StockKLineServiceImpl implements StockKLineService {
+
 
     /**
      * 获取 k线图
@@ -80,8 +82,8 @@ public class StockKLineServiceImpl implements StockKLineService {
             list.add(stockKLineVo);
         }
 
-        int[] maArr ={5,10,20,30,60,120};
-        CalcUtils.calcMa(maArr,list);
+        int[] maArr = {5, 10, 20, 30, 60, 120};
+        CalcUtils.calcMa(maArr, list);
         return list;
     }
 
@@ -92,15 +94,21 @@ public class StockKLineServiceImpl implements StockKLineService {
             String res = RestTemplateUtils.request(fiveDay, String.class);
             JSONObject obj = JSONObject.parseObject(res);
             JSONObject data = obj.getJSONObject("data");
-            JSONArray realData = data.getJSONObject(code).getJSONArray("data");
-            BigDecimal bigDecimal = new BigDecimal(100);
-            BigDecimal beginPrice = realData.getJSONObject(realData.size() - 1).getBigDecimal("prec");
+            JSONObject stock = data.getJSONObject(code);
+            JSONArray minuData = stock.getJSONArray("data");
+            JSONObject qt = stock.getJSONObject("qt");
+            String marketStr = qt.getJSONArray("market").getString(0);
+            String market = code.substring(0, 2).toUpperCase();
+            // 判断是休市还是交易
+            boolean marketOpen = marketStr.indexOf(market + "_open") > 0;
+            BigDecimal beginPrice = minuData.getJSONObject(minuData.size() - 1).getBigDecimal("prec");
             Map<String, Object> map = new HashMap<>(2);
             //五日数据
-            List<FivedayVo> fivedayVoList = new ArrayList<>(realData.size());
+            List<FivedayVo> fivedayVoList = new ArrayList<>(minuData.size());
             // 计算刻度线最大值
             double absMaxPercent = 0;
-            for (Object o : realData) {
+            double maxVolume = 0;
+            for (Object o : minuData) {
                 JSONObject day = (JSONObject) o;
                 FivedayVo fivedayVo = new FivedayVo();
                 fivedayVo.setDate(day.getObject("date", LocalDate.class));
@@ -127,13 +135,16 @@ public class StockKLineServiceImpl implements StockKLineService {
                         minutesVo.setMinuVolume(minutesVo.getVolume());
                     }
                     //均价
-                    BigDecimal average = clinch.divide(volume, MathContext.DECIMAL128).divide(bigDecimal, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN);
+                    BigDecimal average = volume.compareTo(NumberContext.ZERO) == 0 ? NumberContext.ZERO :
+                            clinch.divide(volume, MathContext.DECIMAL128)
+                                    .divide(NumberContext.HUNDREN, MathContext.DECIMAL128)
+                                    .setScale(2, RoundingMode.HALF_DOWN);
                     minutesVo.setAveragePrice(average);
                     // 涨跌情况 涨跌幅
                     BigDecimal minutesPrice = minutesVo.getPrice();
                     BigDecimal changeValue = minutesPrice.subtract(beginPrice);
                     minutesVo.setChangeValue(changeValue);
-                    BigDecimal percent = changeValue.divide(beginPrice, MathContext.DECIMAL128).multiply(bigDecimal).setScale(2, RoundingMode.HALF_DOWN);
+                    BigDecimal percent = changeValue.divide(beginPrice, MathContext.DECIMAL128).multiply(NumberContext.HUNDREN).setScale(2, RoundingMode.HALF_DOWN);
                     minutesVo.setPercent(percent);
                     minutesVoList.add(minutesVo);
                     double percentVal = percent.doubleValue();
@@ -141,13 +152,17 @@ public class StockKLineServiceImpl implements StockKLineService {
                     if (abs > absMaxPercent) {
                         absMaxPercent = abs;
                     }
+                    maxVolume =  Math.max(minutesVo.getMinuVolume().doubleValue(),maxVolume);
                 }
                 fivedayVo.setMinutesVoList(minutesVoList);
                 fivedayVoList.add(fivedayVo);
             }
             map.put("fiveday", fivedayVoList);
+            map.put("marketOpen", marketOpen);
+            map.put("beginPrice", beginPrice);
             Map<String, Object> y = CalcUtils.calcYaxisInfo(beginPrice, absMaxPercent);
             map.putAll(y);
+            map.put("maxVolume",maxVolume);
             return map;
         } catch (Exception e) {
             log.error("", e);
@@ -161,14 +176,14 @@ public class StockKLineServiceImpl implements StockKLineService {
         String url = kLine
                 .replace("codePlace", dto.getCode())
                 .replace("kname", dto.getKname())
-                .replace("endDatePlace", dto.getEndDate()== null ? "" : dto.getEndDate());
+                .replace("endDatePlace", dto.getEndDate() == null ? "" : dto.getEndDate());
         String res = RestTemplateUtils.request(url, String.class);
         // {code: 0,msg: "",data: {sh603138: {typePlace: [k数据],qt:{sh603138:{最新数据}}}}}
         JSONObject jsonObject = JSON.parseObject(res);
         JSONArray jsonArray = jsonObject
-                    .getJSONObject("data")
-                    .getJSONObject(dto.getCode())
-                    .getJSONArray(dto.getKname());
+                .getJSONObject("data")
+                .getJSONObject(dto.getCode())
+                .getJSONArray(dto.getKname());
         List<StockKLineVo> list = new ArrayList<>(jsonArray.size());
         jsonArray.forEach(o -> {
             JSONArray arr = (JSONArray) o;

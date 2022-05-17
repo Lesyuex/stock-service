@@ -13,11 +13,11 @@ public enum ResultEnum {
     /**
      * 正常
      */
-    SUCCESS(200, "操作成功！"),
+    SUCCESS(200, "成功！"),
     /**
      * 操作失败
      */
-    FAIL(400, "操作失败！"),
+    FAIL(400, "失败！"),
     UNKNOW_MARKET(300, "未知市场"),
     ERROR_STOCK_CODE(301,"错误股票代码"),
     /**

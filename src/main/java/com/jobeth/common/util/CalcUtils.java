@@ -1,5 +1,6 @@
 package com.jobeth.common.util;
 
+import com.jobeth.common.NumberContext;
 import com.jobeth.vo.StockKLineVo;
 
 import java.math.BigDecimal;
@@ -18,21 +19,24 @@ import java.util.Map;
  * Description: -
  */
 public class CalcUtils {
-    private final static BigDecimal BIG_DECIMAL100 = new BigDecimal(100);
-    public static Map<String, Object> calcYaxisInfo(BigDecimal yesClose, double absMaxPercent){
+    public static Map<String, Object> calcYaxisInfo(BigDecimal yesClose, double maxPercent) {
         HashMap<String, Object> y = new HashMap<>(3);
-        BigDecimal down = new BigDecimal(100d - absMaxPercent);
-        BigDecimal up = new BigDecimal(100d + absMaxPercent);
-        BigDecimal yMaxValue = yesClose.multiply(up).divide(BIG_DECIMAL100, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN);
-        BigDecimal yMinValue = yesClose.multiply(down).divide(BIG_DECIMAL100, MathContext.DECIMAL128).setScale(2, RoundingMode.HALF_DOWN);
-        y.put("maxPercent",absMaxPercent);
-        y.put("maxValue",yMaxValue);
-        y.put("minValue",yMinValue);
+        BigDecimal up = new BigDecimal(100d + maxPercent);
+        BigDecimal down = new BigDecimal(100d - maxPercent);
+        BigDecimal maxPrice = yesClose.multiply(up)
+                .divide(NumberContext.HUNDREN, MathContext.DECIMAL128)
+                .setScale(2, RoundingMode.HALF_DOWN);
+        BigDecimal minPrice = yesClose.multiply(down)
+                .divide(NumberContext.HUNDREN, MathContext.DECIMAL128)
+                .setScale(2, RoundingMode.HALF_DOWN);
+        y.put("maxYaxisPercent", maxPercent);
+        y.put("maxYaxisPrice", maxPrice);
+        y.put("minYaxisPrice", minPrice);
         return y;
     }
 
 
-    public static String format(String value){
+    public static String format(String value) {
         DecimalFormat df = new DecimalFormat();
         // 0:位置上无数字显示0
         df.applyPattern("0.00");
@@ -40,11 +44,10 @@ public class CalcUtils {
     }
 
     /**
-     *
      * @param maArr [5,10,20,30,60,120]
-     * @param list [day1,day2,day3]
+     * @param list  [day1,day2,day3]
      */
-    public static void calcMa(int[] maArr,List<StockKLineVo> list){
+    public static void calcMa(int[] maArr, List<StockKLineVo> list) {
         BigDecimal zero = new BigDecimal(0);
         for (int ma : maArr) {
             String key = "MA" + ma;

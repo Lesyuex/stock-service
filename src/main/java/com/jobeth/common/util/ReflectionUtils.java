@@ -4,7 +4,8 @@ import com.jobeth.annotion.QtIndex;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -50,5 +51,18 @@ public class ReflectionUtils {
             }
         }
         return instance;
+    }
+
+
+    public static Map<String, Object> objToMap(Object obj) throws IllegalAccessException {
+        Map<String, Object> map = new HashMap<>();
+        Class<?> clazz = obj.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            String key = field.getName();
+            Object value = field.get(obj);
+            map.put(key, value);
+        }
+        return map;
     }
 }

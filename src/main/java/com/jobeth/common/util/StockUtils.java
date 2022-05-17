@@ -17,7 +17,7 @@ public class StockUtils {
         //A股指数
         CN_INDEX(1,"A股指数"),
         // A股基金
-        CN_FUND(3,"A股指数");
+        CN_FUND(3,"A股基金");
         private final int type;
         private final String desc;
 
