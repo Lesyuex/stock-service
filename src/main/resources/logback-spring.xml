@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
+    <conversionRule conversionWord="customcolor" converterClass="com.jobeth.config.LogbackColorfulConfig"/>
     <appender name="consoleLog" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>
-                %d{yyyy-MM-dd HH:mm} - [ %-5level ] [ %35.35logger{35} : %5line ] - %msg%n
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %magenta([%thread]) %customcolor(%-5level) %cyan([ %35.35logger{35} : %5line ]) - %msg%n
+                <!--%d{yyyy-MM-dd HH:mm} - [ %-5level ] [ %35.35logger{35} : %5line ] - %msg%n-->
             </pattern>
         </layout>
     </appender>
