@@ -12,12 +12,16 @@ import com.jobeth.mapper.PlateInfoMapper;
 import com.jobeth.mapper.PlateStockInfoMapper;
 import com.jobeth.service.PlateInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jobeth.service.StockInfoService;
 import com.jobeth.vo.PlateLeadUpDownVo;
+import com.jobeth.vo.StockSingleVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +39,8 @@ import java.util.Map;
 @Slf4j
 public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo> implements PlateInfoService {
     private static Map<String, String> plateInfoMap = null;
+    @Autowired
+    private StockInfoService stockInfoService;
 
     /**
      * 更新所有板块信息
@@ -118,17 +124,32 @@ public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo
         int size = jsonArray.size();
         List<PlateLeadUpDownVo> leadUpList = new ArrayList<>(6);
         List<PlateLeadUpDownVo> leadDownList = new ArrayList<>(6);
+        StringBuilder upBulider = new StringBuilder();
+        StringBuilder downBulider = new StringBuilder();
         for (int i = 0; i < 6; i++) {
             JSONObject up = jsonArray.getJSONObject(i);
             PlateLeadUpDownVo upVo = ReflectionUtils.mapToObjByCustomFiledName(up, PlateLeadUpDownVo.class);
             upVo.setCategoryName(plateInfoMap.get(upVo.getCategoryType()));
             leadUpList.add(upVo);
+            upBulider.append(upVo.getLeadUpCode());
+            upBulider.append(",");
             JSONObject down = jsonArray.getJSONObject(size - i - 1);
             PlateLeadUpDownVo downVo = ReflectionUtils.mapToObjByCustomFiledName(down, PlateLeadUpDownVo.class);
             downVo.setCategoryName(plateInfoMap.get(upVo.getCategoryType()));
+            downBulider.append(downVo.getLeadDownCode());
+            downBulider.append(",");
             leadDownList.add(downVo);
         }
-
+        StringBuilder append = upBulider.append(downBulider);
+        String realCodes = StockUtils.getRealCodes(0, append.substring(0, append.length() - 1));
+        List<StockSingleVo> single = this.stockInfoService.getSingle(realCodes);
+        int i = single.size()/ 2;
+        for (int j = 0; j < i; j++) {
+            StockSingleVo up = single.get(j);
+            StockSingleVo down = single.get(j + 6);
+            leadUpList.get(j).setLeadUpPrice(new BigDecimal(up.getCurrentPrice()));
+            leadDownList.get(j).setLeadDownPrice(new BigDecimal(down.getCurrentPrice()));
+        }
         leadUpDownMap.put("leadUpList", leadUpList);
         leadUpDownMap.put("leadDownList", leadDownList);
         return leadUpDownMap;

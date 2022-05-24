@@ -1,11 +1,13 @@
 package com.jobeth.vo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jobeth.annotion.EastFiledName;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PlateLeadUpDownVo {
     /**
      * 1:行业
@@ -45,6 +47,7 @@ public class PlateLeadUpDownVo {
     private String leadUpName;
     @EastFiledName(value="f140")
     private String leadUpCode;
+    private BigDecimal leadUpPrice;
     @EastFiledName(value="f136")
     private BigDecimal leadUpPercent;
 
@@ -53,6 +56,7 @@ public class PlateLeadUpDownVo {
     private String leadDownName;
     @EastFiledName(value="f208")
     private String leadDownCode;
+    private BigDecimal leadDownPrice;
     @EastFiledName(value="f222")
     private BigDecimal leadDownPercent;
 }
