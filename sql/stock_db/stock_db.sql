@@ -1,6 +1,7 @@
-create schema stock_db collate utf8mb4_0900_ai_ci;
+drop database stock_db;
+create database stock_db character set utf8mb4 collate utf8mb4_0900_ai_ci;
 
-
+use stock_db;
 create table plate_info
 (
     code          varchar(20) null comment '代码',

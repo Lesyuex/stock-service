@@ -1,8 +1,10 @@
 package com.jobeth.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jobeth.common.util.*;
 import com.jobeth.dto.PlateStocksInfoDto;
 import com.jobeth.po.PlateInfo;
 import com.jobeth.po.PlateStockInfo;
@@ -10,16 +12,16 @@ import com.jobeth.mapper.PlateInfoMapper;
 import com.jobeth.mapper.PlateStockInfoMapper;
 import com.jobeth.service.PlateInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jobeth.common.util.HttpClientUtils;
-import com.jobeth.common.util.PropertiesUtils;
-import com.jobeth.common.util.SpringContextUtils;
+import com.jobeth.vo.PlateLeadUpDownVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -32,6 +34,7 @@ import java.util.List;
 @Service
 @Slf4j
 public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo> implements PlateInfoService {
+    private static Map<String, String> plateInfoMap = null;
 
     /**
      * 更新所有板块信息
@@ -50,6 +53,7 @@ public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo
             JSONObject data = resultObj.getJSONObject("data");
             JSONObject diff = data.getJSONObject("diff");
             for (String key : diff.keySet()) {
+                ;
                 PlateStocksInfoDto dto = new PlateStocksInfoDto();
                 JSONObject plate = diff.getJSONObject(key);
                 dto.setCode(plate.getString("f12"));
@@ -59,9 +63,9 @@ public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo
                 if (i == 1) {
                     name = "地域板块";
                 } else if (i == 2) {
-                    name = "概念板块";
-                } else {
                     name = "行业板块";
+                } else {
+                    name = "概念板块";
                 }
                 dto.setCategoryName(name);
                 // 获取成分股
@@ -96,9 +100,43 @@ public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo
         }
     }
 
+    @Override
+    public Map<String, List<PlateLeadUpDownVo>> getLeadUpAndDown(int cateType) throws Exception {
+        if (plateInfoMap == null) {
+            plateInfoMap = new HashMap<>();
+            List<PlateInfo> list = this.list();
+            list.forEach(plateInfo -> {
+                plateInfoMap.put(plateInfo.getCategoryType(), plateInfo.getCategoryName());
+            });
+        }
+        String eastMoneyBkSingle = PropertiesUtils.getByKey("eastMoneyBkSingle");
+        String realUrl = eastMoneyBkSingle.replace("bkIndex", String.valueOf(cateType));
+        String request = RestTemplateUtils.request(realUrl, String.class);
+        JSONObject pojo = JacksonUtil.jsonToPojo(request, JSONObject.class);
+        JSONArray jsonArray = pojo.getJSONObject("data").getJSONArray("diff");
+        Map<String, List<PlateLeadUpDownVo>> leadUpDownMap = new HashMap<>(2);
+        int size = jsonArray.size();
+        List<PlateLeadUpDownVo> leadUpList = new ArrayList<>(6);
+        List<PlateLeadUpDownVo> leadDownList = new ArrayList<>(6);
+        for (int i = 0; i < 6; i++) {
+            JSONObject up = jsonArray.getJSONObject(i);
+            PlateLeadUpDownVo upVo = ReflectionUtils.mapToObjByCustomFiledName(up, PlateLeadUpDownVo.class);
+            upVo.setCategoryName(plateInfoMap.get(upVo.getCategoryType()));
+            leadUpList.add(upVo);
+            JSONObject down = jsonArray.getJSONObject(size - i - 1);
+            PlateLeadUpDownVo downVo = ReflectionUtils.mapToObjByCustomFiledName(down, PlateLeadUpDownVo.class);
+            downVo.setCategoryName(plateInfoMap.get(upVo.getCategoryType()));
+            leadDownList.add(downVo);
+        }
+
+        leadUpDownMap.put("leadUpList", leadUpList);
+        leadUpDownMap.put("leadDownList", leadDownList);
+        return leadUpDownMap;
+    }
 
     /**
      * 根据板块信息获取成分股
+     *
      * @param dto 板块信息
      * @return 成分股
      */
@@ -127,13 +165,14 @@ public class PlateInfoServiceImpl extends ServiceImpl<PlateInfoMapper, PlateInfo
 
     /**
      * 根据板块类型查询板块信息
+     *
      * @param categoryType categoryType
      * @return List
      */
-    public List<PlateInfo> listByCategoryType(String categoryType){
+    public List<PlateInfo> listByCategoryType(String categoryType) {
         QueryWrapper<PlateInfo> query = new QueryWrapper<>();
-        query.select("code","name");
-        query.eq("category_type",categoryType);
+        query.select("code", "name");
+        query.eq("category_type", categoryType);
         return this.baseMapper.selectList(query);
     }
 }

@@ -1,9 +1,12 @@
 package com.jobeth.common.util;
 
+import com.jobeth.annotion.EastFiledName;
 import com.jobeth.annotion.QtIndex;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,5 +67,46 @@ public class ReflectionUtils {
             map.put(key, value);
         }
         return map;
+    }
+
+    public static <T> T mapToObjByCustomFiledName(Map<String, Object> sourceMap, Class<T> clazz) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        Constructor<T> constructor = clazz.getDeclaredConstructor();
+        T instance = constructor.newInstance();
+        Field[] filedArr = clazz.getDeclaredFields();
+        String annValue = null;
+        for (Field filed : filedArr) {
+            EastFiledName annotation = filed.getAnnotation(EastFiledName.class);
+            if (annotation != null) {
+                annValue = annotation.value();
+                filed.setAccessible(true);
+                Object value = sourceMap.get(annValue);
+                if (filedTypeIsBigDecimal(filed)) {
+                    BigDecimal bigDecimal = new BigDecimal(value.toString());
+                    filed.set(instance,bigDecimal);
+                }else if (filedTypeIsString(filed)){
+                    filed.set(instance,String.valueOf(value));
+                }else {
+                    filed.set(instance, value);
+                }
+
+            }
+        }
+        return instance;
+    }
+    public static boolean filedTypeIsString(Field field) {
+        String filedTypeName = getFiledTypeName(field);
+        return "java.lang.String".equals(filedTypeName);
+    }
+    public static boolean filedTypeIsNumber(Field field) {
+        String filedTypeName = getFiledTypeName(field);
+        return "java.lang.Number".equals(filedTypeName);
+    }
+    public static boolean filedTypeIsBigDecimal(Field field) {
+        String filedTypeName = getFiledTypeName(field);
+        return "java.math.BigDecimal".equals(filedTypeName);
+    }
+
+    public static String getFiledTypeName(Field field) {
+        return field.getType().getName();
     }
 }

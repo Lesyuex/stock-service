@@ -28,9 +28,7 @@ public class PlateInfo implements Serializable {
     private String name;
 
     /**
-     * 1:行业
-     * 2:概念
-     * 3:地域
+     1:地域2:行业 3:概念
      */
     private String categoryType;
 
